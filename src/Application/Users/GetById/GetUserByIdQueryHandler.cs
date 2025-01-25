@@ -18,15 +18,7 @@ internal sealed class GetUserByIdQueryHandler(IDatabaseContext context, IUserCon
             return Result.Failure<UserResponse>(UserErrors.Unauthorized());
         }
 
-        UserResponse? user = await context.Users.AsQueryable()
-            .Where(u => u.Id == query.UserId)
-            .Select(u => new UserResponse
-            {
-                Id = u.Id,
-                FirstName = u.FirstName,
-                LastName = u.LastName,
-                Email = u.Email
-            })
+        User? user = await context.Users.Find(x => x.Id == query.UserId)
             .SingleOrDefaultAsync(cancellationToken);
 
         if (user is null)
@@ -34,6 +26,12 @@ internal sealed class GetUserByIdQueryHandler(IDatabaseContext context, IUserCon
             return Result.Failure<UserResponse>(UserErrors.NotFound(query.UserId));
         }
 
-        return user;
+        return new UserResponse
+        {
+            Id = user.Id,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Email = user.Email
+        };
     }
 }

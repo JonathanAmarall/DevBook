@@ -8,8 +8,6 @@ internal static class ClaimsPrincipalExtensions
     {
         string? userId = principal?.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        return userId != null
-            ? userId!
-            : throw new ApplicationException("User id is unavailable");
+        return userId;
     }
 }
