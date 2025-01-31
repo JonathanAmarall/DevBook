@@ -19,4 +19,10 @@ public class LogEntry : Entity
 
     // Dados embutidos
     public List<Attachment> Attachments { get; set; } = new List<Attachment>();
+
+    public void MarkAsResolved()
+    {
+        Status = LogStatus.Resolved;
+        ResolvedAt = DateTime.UtcNow;
+    }
 }
