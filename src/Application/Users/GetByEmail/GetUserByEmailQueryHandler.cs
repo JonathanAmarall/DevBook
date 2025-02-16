@@ -1,6 +1,7 @@
 ﻿using Application.Abstractions.Authentication;
 using Application.Abstractions.Data;
 using Application.Abstractions.Messaging;
+using Application.Users.Common;
 using Domain.Users;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
@@ -15,11 +16,14 @@ internal sealed class GetUserByEmailQueryHandler(IDatabaseContext context, IUser
     {
         UserResponse? user = await context.Users.AsQueryable()
             .Where(u => u.Email == query.Email)
-            .Select(u => new UserResponse
+            .Select(user => new UserResponse
             {
-                FirstName = u.FirstName,
-                LastName = u.LastName,
-                Email = u.Email
+                Id = user.Id,
+                AvatarUrl = user.AvatarUrl,
+                Bio = user.Bio,
+                Email = user.Email,
+                Username = user.Username,
+                FullName = user.FullName
             })
             .SingleOrDefaultAsync(cancellationToken);
 

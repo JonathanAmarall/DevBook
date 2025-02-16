@@ -12,11 +12,11 @@ internal sealed class Login : IEndpoint
 
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPost("users/login", async (Request request, ISender sender, CancellationToken cancellationToken) =>
+        app.MapPost("api/v1/users/login", async (Request request, ISender sender, CancellationToken cancellationToken) =>
         {
             var command = new LoginUserCommand(request.Email, request.Password);
 
-            Result<string> result = await sender.Send(command, cancellationToken);
+            Result<LoginResponse> result = await sender.Send(command, cancellationToken);
 
             return result.Match(Results.Ok, CustomResults.Problem);
         })

@@ -1,6 +1,7 @@
 ﻿using Application.Abstractions.Authentication;
 using Application.Abstractions.Data;
 using Application.Abstractions.Messaging;
+using Application.Users.Common;
 using Domain.Users;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
@@ -29,9 +30,11 @@ internal sealed class GetUserByIdQueryHandler(IDatabaseContext context, IUserCon
         return new UserResponse
         {
             Id = user.Id,
-            FirstName = user.FirstName,
-            LastName = user.LastName,
-            Email = user.Email
+            AvatarUrl = user.AvatarUrl,
+            Bio = user.Bio,
+            Email = user.Email,
+            Username = user.Username,
+            FullName = user.FullName
         };
     }
 }

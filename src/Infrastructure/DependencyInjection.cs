@@ -1,12 +1,17 @@
-﻿using System.Text;
+﻿using System.Security.Claims;
+using System.Text;
 using Application.Abstractions.Authentication;
 using Application.Abstractions.Data;
+using AspNet.Security.OAuth.GitHub;
 using Infrastructure.Authentication;
 using Infrastructure.Authorization;
 using Infrastructure.Database;
 using Infrastructure.Time;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -23,9 +28,10 @@ public static class DependencyInjection
         services
             .AddServices()
             .AddDatabase(configuration)
-            .InsertHealthChecks()
+            .InsertHealthChecks(configuration)
             .AddAuthenticationInternal(configuration)
-            .AddAuthorizationInternal();
+            .AddAuthorizationInternal()
+            .AddGithubAuthentication(configuration);
 
     private static IServiceCollection AddServices(this IServiceCollection services)
     {
@@ -42,11 +48,10 @@ public static class DependencyInjection
         return services;
     }
 
-    private static IServiceCollection InsertHealthChecks(this IServiceCollection services)
+    private static IServiceCollection InsertHealthChecks(this IServiceCollection services, IConfiguration configuration)
     {
-        // TODO: add mongo
         services
-            .AddSingleton(sp => new MongoClient("mongodb://localhost:27017"))
+            .AddSingleton(sp => new MongoClient(configuration["MongoDbSettings:ConnectionString"]))
             .AddHealthChecks()
             .AddMongoDb();
 
@@ -87,6 +92,33 @@ public static class DependencyInjection
         services.AddTransient<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
         services.AddTransient<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
+
+        return services;
+    }
+
+    private static IServiceCollection AddGithubAuthentication(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddAuthentication(options =>
+        {
+            options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = GitHubAuthenticationDefaults.AuthenticationScheme;
+        })
+        .AddCookie()
+        .AddGitHub(options =>
+        {
+            options.ClientId = configuration["GitHubAuth:ClientId"]!;
+            options.ClientSecret = configuration["GitHubAuth:ClientSecret"]!;
+            options.CallbackPath = new PathString("/auth/github/external-callback");
+            options.SaveTokens = true;
+            options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
+            options.ClaimActions.MapJsonKey(ClaimTypes.Name, "login");
+            options.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
+            options.ClaimActions.MapJsonKey("urn:github:name", "name");
+            options.ClaimActions.MapJsonKey("urn:github:avatar", "avatar_url");
+            options.ClaimActions.MapJsonKey("urn:github:bio", "bio");
+        });
+
+        services.AddAuthorization();
 
         return services;
     }

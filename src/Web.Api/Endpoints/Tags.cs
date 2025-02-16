@@ -3,6 +3,6 @@
 public static class Tags
 {
     public const string Users = "Users";
-    public const string Todos = "todos";
-    public const string Github = "github";
+    public const string Github = "Github";
+    public const string LogEntry = "LogEntry";
 }

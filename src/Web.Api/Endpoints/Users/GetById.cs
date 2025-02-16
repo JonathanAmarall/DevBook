@@ -1,4 +1,5 @@
-﻿using Application.Users.GetById;
+﻿using Application.Users.Common;
+using Application.Users.GetById;
 using MediatR;
 using SharedKernel;
 using Web.Api.Extensions;
@@ -10,7 +11,7 @@ internal sealed class GetById : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapGet("users/{userId}", async (string userId, ISender sender, CancellationToken cancellationToken) =>
+        app.MapGet("api/v1/users/{userId}", async (string userId, ISender sender, CancellationToken cancellationToken) =>
         {
             var query = new GetUserByIdQuery(userId);
 
