@@ -1,6 +1,7 @@
 ﻿using Application.LogBook.GetById;
 using MediatR;
 using SharedKernel;
+using Web.Api.Endpoints.Users;
 using Web.Api.Extensions;
 
 namespace Web.Api.Endpoints.LogEntry;
