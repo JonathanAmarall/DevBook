@@ -19,7 +19,7 @@ internal sealed class GithubLoginUserCommandHandler(
         User? user = await context.Users.Find(x => x.Email == command.Email)
             .SingleOrDefaultAsync(cancellationToken);
 
-        if (user is null)
+        if (user is null || user.IsExternalUser())
         {
             return Result.Failure<LoginResponse>(UserErrors.NotFoundByEmail);
         }

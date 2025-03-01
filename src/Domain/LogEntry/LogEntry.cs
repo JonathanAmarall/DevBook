@@ -8,17 +8,17 @@ public class LogEntry : Entity
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public string Category { get; set; } = string.Empty;
-    public List<string> Tags { get; set; } = new List<string>();
+    public List<string> Tags { get; set; } = [];
     public LogStatus Status { get; set; } = LogStatus.Open;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? ResolvedAt { get; set; }
 
     // Referência ao usuário e projeto
     public string UserId { get; set; } = string.Empty;
-    public string? ProjectId { get; set; }
+    public string? ProjectId { get; set; } = string.Empty;
 
     // Dados embutidos
-    public List<Attachment> Attachments { get; set; } = new List<Attachment>();
+    public List<Attachment> Attachments { get; set; } = [];
 
     public void MarkAsResolved()
     {

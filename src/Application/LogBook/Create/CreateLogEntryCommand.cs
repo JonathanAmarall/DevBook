@@ -3,16 +3,16 @@
 namespace Application.LogBook.Create;
 public class CreateLogEntryCommand : ICommand<CreateLogEntryCommandResponse>
 {
-    public string Title { get; set; } = string.Empty;
-    public string Description { get; set; } = string.Empty;
-    public string Category { get; set; } = string.Empty;
-    public List<string> Tags { get; set; } = [];
-    public string? ProjectId { get; set; }
-    public List<AttachmentLogEntryCommand> Attachments { get; set; } = [];
+    public string Title { get; init; } = string.Empty;
+    public string Description { get; init; } = string.Empty;
+    public string Category { get; init; } = string.Empty;
+    public List<string> Tags { get; init; } = [];
+    public string? ProjectId { get; init; }
+    public List<AttachmentLogEntryCommand> Attachments { get; init; } = [];
 }
 
 public record AttachmentLogEntryCommand
 {
-    public string FileName { get; set; } = string.Empty;
-    public string Url { get; set; } = string.Empty;
+    public string FileName { get; init; } = string.Empty;
+    public string Url { get; init; } = string.Empty;
 }

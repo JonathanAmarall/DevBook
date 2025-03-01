@@ -6,6 +6,9 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
     <PackageReference Include="MongoDB.Driver" />
+    <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="Refit" />
+    <PackageReference Include="Refit.HttpClientFactory" />
     <PackageReference Include="Serilog" />
   </ItemGroup>
 

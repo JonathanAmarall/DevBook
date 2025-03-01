@@ -1,17 +1,32 @@
-﻿using AspNet.Security.OAuth.GitHub;
-using Microsoft.AspNetCore.Authentication;
+﻿using Application.Users.Common;
+using Application.Users.RegisterExternal;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using SharedKernel;
+using Web.Api.Extensions;
+using Web.Api.Infrastructure;
 
 namespace Web.Api.Endpoints.Github;
+public class TokenRequest
+{
+    public required string Code { get; init; }
+}
 
 internal sealed class Login : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapGet("/auth/github/login", async (HttpContext context, IConfiguration configuration) =>
+        app.MapPost("/auth/github/login", async (
+            [FromBody] TokenRequest request,
+            HttpContext context,
+            [FromServices] ISender sender,
+            [FromServices] IConfiguration configuration,
+            CancellationToken cancellationToken) =>
         {
-            string redirectUrl = configuration["GitHubAuth:RedirectUri"];
-            var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
-            await context.ChallengeAsync(GitHubAuthenticationDefaults.AuthenticationScheme, properties);
+            RegisterExternalUserCommand command = new(request.Code);
+            Result<UserResponse> result = await sender.Send(command, cancellationToken);
+
+            return result.Match(Results.Ok, CustomResults.Problem);
         })
         .WithTags(Tags.Github);
     }

@@ -8,4 +8,7 @@ public sealed record UserResponse
     public string FullName { get; init; }
     public Uri AvatarUrl { get; init; }
     public string Bio { get; init; }
+    public Token? Token { get; init; }
 }
+
+public record Token(string Value);

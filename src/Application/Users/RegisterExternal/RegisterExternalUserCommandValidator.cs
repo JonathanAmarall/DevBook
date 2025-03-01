@@ -6,8 +6,6 @@ internal sealed class RegisterExternalUserCommandValidator : AbstractValidator<R
 {
     public RegisterExternalUserCommandValidator()
     {
-        RuleFor(c => c.ExternalId).NotEmpty();
-        RuleFor(c => c.Username).NotEmpty();
-        RuleFor(c => c.Email).NotEmpty().EmailAddress();
+        RuleFor(c => c.Code).NotEmpty();
     }
 }

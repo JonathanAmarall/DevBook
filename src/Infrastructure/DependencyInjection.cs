@@ -2,13 +2,11 @@
 using System.Text;
 using Application.Abstractions.Authentication;
 using Application.Abstractions.Data;
-using AspNet.Security.OAuth.GitHub;
 using Infrastructure.Authentication;
 using Infrastructure.Authorization;
 using Infrastructure.Database;
 using Infrastructure.Time;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -30,8 +28,8 @@ public static class DependencyInjection
             .AddDatabase(configuration)
             .InsertHealthChecks(configuration)
             .AddAuthenticationInternal(configuration)
-            .AddAuthorizationInternal()
-            .AddGithubAuthentication(configuration);
+            .AddAuthorizationInternal();
+    //.AddGithubAuthentication(configuration);
 
     private static IServiceCollection AddServices(this IServiceCollection services)
     {
@@ -73,7 +71,21 @@ public static class DependencyInjection
                     ValidAudience = configuration["Jwt:Audience"],
                     ClockSkew = TimeSpan.Zero
                 };
+            })
+            .AddGitHub(options =>
+            {
+                options.ClientId = configuration["GitHubAuth:ClientId"]!;
+                options.ClientSecret = configuration["GitHubAuth:ClientSecret"]!;
+                options.CallbackPath = new PathString("/auth/github/external-callback");
+                options.SaveTokens = true;
+                options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
+                options.ClaimActions.MapJsonKey(ClaimTypes.Name, "login");
+                options.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
+                options.ClaimActions.MapJsonKey("urn:github:name", "name");
+                options.ClaimActions.MapJsonKey("urn:github:avatar", "avatar_url");
+                options.ClaimActions.MapJsonKey("urn:github:bio", "bio");
             });
+
 
         services.AddHttpContextAccessor();
         services.AddScoped<IUserContext, UserContext>();
@@ -96,30 +108,5 @@ public static class DependencyInjection
         return services;
     }
 
-    private static IServiceCollection AddGithubAuthentication(this IServiceCollection services, IConfiguration configuration)
-    {
-        services.AddAuthentication(options =>
-        {
-            options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = GitHubAuthenticationDefaults.AuthenticationScheme;
-        })
-        .AddCookie()
-        .AddGitHub(options =>
-        {
-            options.ClientId = configuration["GitHubAuth:ClientId"]!;
-            options.ClientSecret = configuration["GitHubAuth:ClientSecret"]!;
-            options.CallbackPath = new PathString("/auth/github/external-callback");
-            options.SaveTokens = true;
-            options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
-            options.ClaimActions.MapJsonKey(ClaimTypes.Name, "login");
-            options.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
-            options.ClaimActions.MapJsonKey("urn:github:name", "name");
-            options.ClaimActions.MapJsonKey("urn:github:avatar", "avatar_url");
-            options.ClaimActions.MapJsonKey("urn:github:bio", "bio");
-        });
 
-        services.AddAuthorization();
-
-        return services;
-    }
 }

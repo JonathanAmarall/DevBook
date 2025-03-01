@@ -18,6 +18,7 @@ public class Search : IEndpoint
 
                 return response.Match(Results.Ok, Results.NotFound);
             })
-        .WithTags(Tags.LogEntry);
+            //.HasPermission(Permissions.UsersAccess)
+            .WithTags(Tags.LogEntry);
     }
 }
