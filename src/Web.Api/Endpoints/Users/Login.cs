@@ -1,4 +1,5 @@
-﻿using Application.Users.Login;
+﻿using Application.Users.Common;
+using Application.Users.Login;
 using MediatR;
 using SharedKernel;
 using Web.Api.Extensions;
@@ -16,7 +17,7 @@ internal sealed class Login : IEndpoint
         {
             var command = new LoginUserCommand(request.Email, request.Password);
 
-            Result<LoginResponse> result = await sender.Send(command, cancellationToken);
+            Result<UserResponse> result = await sender.Send(command, cancellationToken);
 
             return result.Match(Results.Ok, CustomResults.Problem);
         })

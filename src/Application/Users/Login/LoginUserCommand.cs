@@ -1,5 +1,6 @@
 ﻿using Application.Abstractions.Messaging;
+using Application.Users.Common;
 
 namespace Application.Users.Login;
 
-public sealed record LoginUserCommand(string Email, string Password) : ICommand<LoginResponse>;
+public sealed record LoginUserCommand(string Email, string Password) : ICommand<UserResponse>;

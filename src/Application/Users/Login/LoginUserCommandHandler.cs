@@ -12,39 +12,36 @@ namespace Application.Users.Login;
 internal sealed class GithubLoginUserCommandHandler(
     IDatabaseContext context,
     IPasswordHasher passwordHasher,
-    ITokenProvider tokenProvider) : ICommandHandler<LoginUserCommand, LoginResponse>
+    ITokenProvider tokenProvider) : ICommandHandler<LoginUserCommand, UserResponse>
 {
-    public async Task<Result<LoginResponse>> Handle(LoginUserCommand command, CancellationToken cancellationToken)
+    public async Task<Result<UserResponse>> Handle(LoginUserCommand command, CancellationToken cancellationToken)
     {
         User? user = await context.Users.Find(x => x.Email == command.Email)
             .SingleOrDefaultAsync(cancellationToken);
 
         if (user is null || user.IsExternalUser())
         {
-            return Result.Failure<LoginResponse>(UserErrors.NotFoundByEmail);
+            return Result.Failure<UserResponse>(UserErrors.NotFoundByEmail);
         }
 
         bool verified = passwordHasher.Verify(command.Password, user.PasswordHash);
 
         if (!verified)
         {
-            return Result.Failure<LoginResponse>(UserErrors.NotFoundByEmail);
+            return Result.Failure<UserResponse>(UserErrors.NotFoundByEmail);
         }
 
         string token = tokenProvider.Create(user);
 
-        return new LoginResponse
+        return new UserResponse
         {
-            Token = token,
-            User = new UserResponse
-            {
-                Id = user.Id,
-                AvatarUrl = user.AvatarUrl,
-                Bio = user.Bio,
-                Email = user.Email,
-                Username = user.Username,
-                FullName = user.FullName
-            }
+            Id = user.Id,
+            AvatarUrl = user.AvatarUrl,
+            Bio = user.Bio,
+            Email = user.Email,
+            Username = user.Username,
+            FullName = user.FullName,
+            Token = new Token(token)
         };
     }
 }
