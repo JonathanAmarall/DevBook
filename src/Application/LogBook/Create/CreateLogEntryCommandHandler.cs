@@ -26,7 +26,7 @@ internal sealed class CreateLogEntryCommandHandler : ICommandHandler<CreateLogEn
         User user = await _context.Users.Find(filter).SingleOrDefaultAsync(cancellationToken);
         if (user == null)
         {
-            return Result.Failure<CreateLogEntryCommandResponse>(new Error("404", "User not found", ErrorType.NotFound));
+            return Result.Failure<CreateLogEntryCommandResponse>(UserErrors.NotFound(userContext.UserId));
         }
 
         LogEntry logEntry = new()

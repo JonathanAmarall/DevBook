@@ -12,7 +12,12 @@ public class Search : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
         app.MapGet("/api/v1/log-entry",
-            async ([FromQuery] string? title, [FromQuery] string[]? tags, [FromQuery] short? pageNumber, [FromQuery] short? pageSize, ISender sender, CancellationToken cancellationToken) =>
+            async (
+                [FromQuery] string? title,
+                [FromQuery] string[]? tags,
+                [FromQuery] short? pageNumber,
+                [FromQuery] short? pageSize,
+                ISender sender, CancellationToken cancellationToken) =>
             {
                 Result<PagedList<SearchLogEntryQueryResponse>> response =
                     await sender.Send(new SearchLogEntryQuery(title, default, [.. tags], default, default) { PageNumber = pageNumber, PageSize = pageSize }, cancellationToken);
