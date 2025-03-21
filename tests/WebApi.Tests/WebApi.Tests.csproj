@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<IsPackable>false</IsPackable>
+		<IsTestProject>true</IsTestProject>
+	</PropertyGroup>
+	
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+		<PackageReference Include="Testcontainers.MongoDb" />
+		<PackageReference Include="WireMock.Net" />
+		<PackageReference Include="xunit.extensibility.core" />
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <ProjectReference Include="..\..\src\Web.Api\Web.Api.csproj" />
+	</ItemGroup>
+</Project>
