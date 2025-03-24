@@ -2,7 +2,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel;
-using Web.Api.Endpoints.Users;
 using Web.Api.Extensions;
 
 namespace Web.Api.Endpoints.LogEntry;
@@ -24,7 +23,7 @@ public class Search : IEndpoint
 
                 return response.Match(Results.Ok, Results.NotFound);
             })
-            .HasPermission(Permissions.UsersAccess)
+            //.HasPermission(Permissions.UsersAccess)
             .WithTags(Tags.LogEntry);
     }
 }

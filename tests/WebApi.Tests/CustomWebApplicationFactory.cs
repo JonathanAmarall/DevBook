@@ -1,12 +1,13 @@
-﻿using DotNet.Testcontainers.Builders;
+﻿using Application.Abstractions.Authentication;
+using DotNet.Testcontainers.Builders;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.DependencyInjection;
+using MongoDB.Bson;
+using MongoDB.Driver;
 using Testcontainers.MongoDb;
 using Web.Api;
-using WireMock.RequestBuilders;
-using WireMock.ResponseBuilders;
 using WireMock.Server;
-using Xunit;
 
 namespace WebApi.Tests;
 
@@ -27,12 +28,15 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
     {
         // Add Using settings here
         builder.UseSetting("MongoDbSettings:ConnectionString", MongoContainer.GetConnectionString());
+
+        builder.ConfigureServices(services => services.AddScoped<IUserContext, UserContextTest>());
     }
 
     public async Task InitializeAsync()
     {
         WireMockServer = WireMockServer.Start();
         await MongoContainer.StartAsync();
+        await InitializeReplicaSetAsync();
     }
 
     async Task IAsyncLifetime.DisposeAsync()
@@ -41,38 +45,30 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
         await MongoContainer.DisposeAsync();
         await base.DisposeAsync();
     }
+
+    private async Task InitializeReplicaSetAsync()
+    {
+        using var client = new MongoClient(MongoContainer.GetConnectionString());
+        IMongoDatabase adminDatabase = client.GetDatabase("admin");
+
+        var command = new BsonDocument("replSetInitiate", new BsonDocument());
+        await adminDatabase.RunCommandAsync<BsonDocument>(command);
+
+        // Wait for the replica set to be fully initialized
+        bool isReplicaSetInitialized = false;
+        while (!isReplicaSetInitialized)
+        {
+            BsonDocument replSetStatus = await adminDatabase.RunCommandAsync<BsonDocument>(new BsonDocument("replSetGetStatus", 1));
+            isReplicaSetInitialized = replSetStatus["ok"] == 1;
+            if (!isReplicaSetInitialized)
+            {
+                await Task.Delay(1000);
+            }
+        }
+    }
 }
 
-public abstract class IntegrationTestBase : IClassFixture<CustomWebApplicationFactory>, IAsyncLifetime
+public class UserContextTest : IUserContext
 {
-    protected readonly CustomWebApplicationFactory _factory;
-    protected readonly HttpClient _httpClient;
-
-    protected IntegrationTestBase(CustomWebApplicationFactory factory)
-    {
-        _factory = factory;
-        _httpClient = factory.CreateClient();
-    }
-
-    public async Task DisposeAsync()
-    {
-        await Task.CompletedTask;
-    }
-
-    public async Task InitializeAsync()
-    {
-        await Task.CompletedTask;
-    }
-
-    protected void SetupGetApiMock(string path, object response, int statusCode = 200)
-    {
-        _factory.WireMockServer
-            .Given(Request.Create()
-                .WithPath(path)
-                .UsingGet())
-            .RespondWith(Response.Create()
-                .WithStatusCode(statusCode)
-                .WithHeader("Content-Type", "application/json")
-                .WithBodyAsJson(response));
-    }
+    public string UserId => "xpto";
 }
