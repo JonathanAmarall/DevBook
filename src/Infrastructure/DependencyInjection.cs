@@ -1,9 +1,14 @@
 ﻿using System.Text;
+using Application;
 using Application.Abstractions.Authentication;
 using Application.Abstractions.Data;
+using Domain.Services;
 using Infrastructure.Authentication;
 using Infrastructure.Authorization;
 using Infrastructure.Database;
+using Infrastructure.ExternalServices.Gemini;
+using Infrastructure.ExternalServices.Github;
+using Infrastructure.Services.TextGeneration;
 using Infrastructure.Time;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -11,6 +16,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
+using Refit;
 using SharedKernel;
 
 namespace Infrastructure;
@@ -21,15 +27,57 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration) =>
         services
-            .AddServices()
+            .AddServices(configuration)
             .AddDatabase(configuration)
             .InsertHealthChecks(configuration)
             .AddAuthenticationInternal(configuration)
-            .AddAuthorizationInternal();
+            .AddGithubOAuthProvider()
+            .AddAuthorizationInternal()
+            .AddTextSummaryGenerator();
 
-    private static IServiceCollection AddServices(this IServiceCollection services)
+    private static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+
+        services.AddRefitClient<IGithubAuthApi>(new RefitSettings
+        {
+            ContentSerializer = new FormUrlEncodedDeserializer()
+        }).ConfigureHttpClient(c =>
+        {
+            c.BaseAddress = new Uri(configuration["GithubAuthApiSettings:BaseAddress"]!);
+            c.DefaultRequestHeaders.Add("User-Agent", "LogDevApi");
+        });
+
+        services.AddRefitClient<IGithubApi>(new RefitSettings
+        {
+            ContentSerializer = new SystemTextJsonContentSerializer()
+        }).ConfigureHttpClient(c =>
+        {
+            c.BaseAddress = new Uri(configuration["GithubApiSettings:BaseAddress"]!);
+            c.DefaultRequestHeaders.Add("User-Agent", "LogDevApi");
+        });
+
+        services.AddTransient<GeminiApiKeyHandler>();
+
+        services.AddRefitClient<IGeminiApi>()
+            .ConfigureHttpClient(c =>
+                c.BaseAddress = new Uri(configuration["GeminiApiSettings:BaseAddress"]!))
+            .AddHttpMessageHandler<GeminiApiKeyHandler>();
+
+        return services;
+    }
+
+    private static IServiceCollection AddGithubOAuthProvider(this IServiceCollection services)
+    {
+        services.AddTransient<IOAuthProvider, GithubOAuthProvider>();
+        return services;
+    }
+
+    private static IServiceCollection AddTextSummaryGenerator(this IServiceCollection services)
+    {
+        services.AddTransient<GeminiTextGenerationService>();
+        services.AddTransient<OpenAiTextGenerationService>();
+        services.AddTransient<ITextSummaryGeneratorService, TextGenerationServiceSelector>();
 
         return services;
     }

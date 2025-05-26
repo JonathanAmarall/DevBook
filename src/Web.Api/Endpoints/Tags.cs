@@ -5,4 +5,5 @@ public static class Tags
     public const string Users = "Users";
     public const string Github = "Github";
     public const string LogEntry = "LogEntry";
+    public const string Summary = "Summary";
 }

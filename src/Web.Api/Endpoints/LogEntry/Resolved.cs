@@ -1,0 +1,21 @@
+﻿using Application.LogEntry.Complete;
+using MediatR;
+using SharedKernel;
+using Web.Api.Extensions;
+using Web.Api.Infrastructure;
+
+namespace Web.Api.Endpoints.LogEntry;
+
+public class Resolved : IEndpoint
+{
+    public void MapEndpoint(IEndpointRouteBuilder app)
+    {
+        app.MapPost("/api/v1/log-entry/{logId}/resolved", async (string logId, ISender sender, CancellationToken cancellationToken) =>
+        {
+            var request = new ResolvedLogEntryCommand(logId);
+            Result<Application.LogEntry.GetById.LogEntryResponse> result = await sender.Send(request, cancellationToken);
+            return result.Match(Results.NoContent, CustomResults.Problem);
+        })
+        .WithTags(Tags.LogEntry);
+    }
+}

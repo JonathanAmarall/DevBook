@@ -1,4 +1,5 @@
 ﻿using Application.LogBook.GetById;
+using Application.LogEntry.GetById;
 using MediatR;
 using SharedKernel;
 using Web.Api.Endpoints.Users;

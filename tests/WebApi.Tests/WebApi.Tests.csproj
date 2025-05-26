@@ -16,7 +16,7 @@
 		<PackageReference Include="xunit.runner.visualstudio" />
 		<PackageReference Include="xunit.extensibility.core" />
 		<PackageReference Include="FluentAssertions" />
-		<PackageReference Include="AutoFixture"  />
+		<PackageReference Include="AutoFixture" />
 	</ItemGroup>
 
 	<ItemGroup>

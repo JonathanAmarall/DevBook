@@ -12,7 +12,7 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors(options
     => options.AddPolicy("Cors",
         builder => builder
-                .WithOrigins("http://localhost:4200")
+                .WithOrigins("http://localhost:4200", "https://jonathanamarall.github.io")
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .AllowCredentials()));
@@ -23,7 +23,7 @@ builder.Host.UseSerilog((context, loggerConfig) =>
 builder.Services.AddSwaggerGenWithAuth();
 
 builder.Services
-    .AddApplication()
+    .AddApplication(builder.Configuration)
     .AddPresentation()
     .AddInfrastructure(builder.Configuration);
 

@@ -1,6 +1,6 @@
 ﻿using Refit;
 
-namespace Application.ExternalServices.Github;
+namespace Infrastructure.ExternalServices.Github;
 
 public record GithubUserResponse
 {

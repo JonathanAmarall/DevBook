@@ -2,6 +2,6 @@
 
 public sealed record MongoDbSettings
 {
-    public string ConnectionString { get; init; } = "mongodb://localhost:27017";
-    public string DatabaseName { get; init; } = "LogBookDb";
+    public string ConnectionString { get; set; }
+    public string DatabaseName { get; set; }
 }

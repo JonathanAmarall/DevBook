@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using Application.LogEntry.Create;
+using FluentValidation;
 
 namespace Application.LogBook.Create;
 
