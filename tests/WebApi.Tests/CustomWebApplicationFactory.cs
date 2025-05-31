@@ -29,17 +29,18 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
             .WithCommand("--replSet", "rs0")
             .WithWaitStrategy(Wait.ForUnixContainer())
             .Build();
+
     public string ConnectionString => MongoContainer.GetConnectionString();
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        builder.UseUrls(BaseAddress);
         builder.UseEnvironment("IntegrationTest");
         builder.UseSetting("MongoDbSettings:ConnectionString", MongoContainer.GetConnectionString());
         builder.ConfigureServices(services =>
         {
             ServiceDescriptor? settingsDescriptor = services.SingleOrDefault(
                 d => d.ServiceType == typeof(IConfigureOptions<MongoDbSettings>));
+
             if (settingsDescriptor is not null)
             {
                 services.Remove(settingsDescriptor);
@@ -61,13 +62,24 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
 
             services.AddScoped<IDatabaseContext, MongoDbContext>();
         });
-        builder.ConfigureServices(services => services.AddScoped<IUserContext, UserContextTest>());
-        builder.UseTestServer(options => options.BaseAddress = new Uri(BaseAddress));
+
+        builder.ConfigureServices(services =>
+            services.AddScoped<IUserContext, UserContextTest>());
+
+        builder.UseTestServer(options =>
+            options.BaseAddress = new Uri(BaseAddress));
     }
 
     public async Task InitializeAsync()
     {
-        WireMockServer = WireMockServer.Start(port: 9877);
+        if (WireMockServer is null || !WireMockServer.IsStarted)
+        {
+            try
+            {
+                WireMockServer = WireMockServer.Start(port: 9876);
+            }
+            catch { /* */ }
+        }
 
         await MongoContainer.StartAsync();
         await InitializeReplicaSetAsync();
@@ -75,10 +87,9 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
 
     async Task IAsyncLifetime.DisposeAsync()
     {
-        WireMockServer.Stop();
-        WireMockServer.Dispose();
         await MongoContainer.DisposeAsync();
         await base.DisposeAsync();
+        WireMockServer?.Dispose();
     }
 
     private async Task InitializeReplicaSetAsync()
@@ -87,24 +98,42 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
         IMongoDatabase adminDatabase = client.GetDatabase("admin");
 
         var command = new BsonDocument("replSetInitiate", new BsonDocument());
-        await adminDatabase.RunCommandAsync<BsonDocument>(command);
 
-        bool isReplicaSetInitialized = false;
-        while (!isReplicaSetInitialized)
+        try
         {
-            BsonDocument replSetStatus = await adminDatabase
-                .RunCommandAsync<BsonDocument>(new BsonDocument("replSetGetStatus", 1));
+            await adminDatabase.RunCommandAsync<BsonDocument>(command);
+        }
+        catch
+        {
+            // Provavelmente já foi iniciado, ignorar erro
+        }
 
-            isReplicaSetInitialized = replSetStatus["ok"] == 1;
-            if (!isReplicaSetInitialized)
-            {
-                await Task.Delay(1000);
-            }
+        bool isPrimary = false;
+        int attempts = 0;
+
+        while (!isPrimary && attempts < 10)
+        {
+            await Task.Delay(3000); // Aguarde antes de checar novamente
+
+            BsonDocument status = await adminDatabase.RunCommandAsync<BsonDocument>(
+                new BsonDocument("replSetGetStatus", 1));
+
+            // myState == 1 significa que o nó é o PRIMARY
+            isPrimary = status.TryGetValue("myState", out BsonValue? state) && state == 1;
+
+            attempts++;
+        }
+
+        if (!isPrimary)
+        {
+            throw new InvalidOperationException("MongoDB replica set not initialized as primary after waiting.");
         }
     }
+
+
 }
 
 public class UserContextTest : IUserContext
 {
-    public string UserId => Guid.NewGuid().ToString();
+    public string UserId => "xpto";
 }

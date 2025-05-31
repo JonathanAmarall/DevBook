@@ -6,13 +6,18 @@ using Infrastructure.ExternalServices.Github;
 using Newtonsoft.Json;
 
 namespace WebApi.Tests.Scenarios.Endpoints.Github;
+//[Collection("IntegrationTestCollection")]
 public class LoginTests : IntegrationTestBase
 {
     private const string LoginPath = "/auth/github/login";
     private const string OAuthAccessTokenEndpointPath = "*/login/oauth/access_token*";
     private const string GetUserEndpointPath = "*/user*";
+    private readonly CustomWebApplicationFactory _factory;
 
-    public LoginTests(CustomWebApplicationFactory factory) : base(factory) { }
+    public LoginTests(CustomWebApplicationFactory factory) : base(factory)
+    {
+        _factory = factory;
+    }
 
     [Fact]
     public async Task GivenLoginIsCalling_WhenCommandIsValidAndAlreadyExistUserRegistered_ThenUpdateUserAndReturnSuccessful()
@@ -24,7 +29,7 @@ public class LoginTests : IntegrationTestBase
             OAuthAccessTokenEndpointPath, oAuthTokernResponse,
             new() { { "Content-Type", "application/x-www-form-urlencoded" } });
 
-        GithubUserResponse githubUserResponse = _fixture.Build<GithubUserResponse>().With(x => x.Email, GetUser().Email).Create();
+        GithubUserResponse githubUserResponse = Fixture.Build<GithubUserResponse>().With(x => x.Email, GetUser().Email).Create();
         string githubUserResponseJson = JsonConvert.SerializeObject(githubUserResponse);
         CreateRequestWithJsonResponse(_factory.WireMockServer, GetUserEndpointPath, githubUserResponseJson, []);
 
@@ -33,7 +38,7 @@ public class LoginTests : IntegrationTestBase
             System.Text.Encoding.UTF8, "application/json");
 
         // Act
-        HttpResponseMessage? response = await _httpClient.PostAsync(LoginPath, content);
+        HttpResponseMessage? response = await HttpClient.PostAsync(LoginPath, content);
 
         // Assert
         response?.IsSuccessStatusCode.Should().BeTrue();
@@ -59,7 +64,7 @@ public class LoginTests : IntegrationTestBase
             System.Text.Encoding.UTF8, "application/json");
 
         // Act
-        HttpResponseMessage? response = await _httpClient.PostAsync(LoginPath, content);
+        HttpResponseMessage? response = await HttpClient.PostAsync(LoginPath, content);
 
         // Assert
         response?.IsSuccessStatusCode.Should().BeFalse();
@@ -83,15 +88,10 @@ public class LoginTests : IntegrationTestBase
             System.Text.Encoding.UTF8, "application/json");
 
         // Act
-        HttpResponseMessage? response = await _httpClient.PostAsync(LoginPath, content);
+        HttpResponseMessage? response = await HttpClient.PostAsync(LoginPath, content);
 
         // Assert
         response?.IsSuccessStatusCode.Should().BeFalse();
         response?.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
-
-
-
-
-
     }
 }

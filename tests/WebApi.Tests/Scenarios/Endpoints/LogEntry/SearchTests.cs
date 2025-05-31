@@ -5,7 +5,7 @@ using SharedKernel;
 namespace WebApi.Tests.Scenarios.Endpoints.LogEntry;
 public class SearchTests : IntegrationTestBase
 {
-    private const string CreateLogEntryPath = "/api/v1/log-entry";
+    private const string SearchLogEntryPath = "/api/v1/log-entry";
 
     public SearchTests(CustomWebApplicationFactory factory) : base(factory)
     {
@@ -16,10 +16,10 @@ public class SearchTests : IntegrationTestBase
     {
         // Arrange
         // Act
-        HttpResponseMessage? response = await _httpClient.GetAsync(CreateLogEntryPath);
+        HttpResponseMessage? response = await HttpClient.GetAsync(SearchLogEntryPath);
 
         // Assert
-        response?.EnsureSuccessStatusCode(); // Status Code 200-299
+        response?.EnsureSuccessStatusCode();
         response?.Content?.Headers?.ContentType?.ToString()
             .Should()
             .Be("application/json; charset=utf-8");
