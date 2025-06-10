@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using Serilog;
 using Testcontainers.MongoDb;
 using Web.Api;
 using WireMock.Server;
@@ -59,18 +60,37 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
                 services.Remove(contextDescriptor);
             }
 
-            services.AddScoped<IDatabaseContext, MongoDbContext>();
+            services.AddSingleton<IDatabaseContext, MongoDbContext>();
         });
+
         builder.ConfigureServices(services => services.AddScoped<IUserContext, UserContextTest>());
         builder.UseTestServer(options => options.BaseAddress = new Uri(BaseAddress));
     }
 
     public async Task InitializeAsync()
     {
-        WireMockServer = WireMockServer.Start(port: 9877);
+        WireMockServer = CreateMockServer();
 
         await MongoContainer.StartAsync();
         await InitializeReplicaSetAsync();
+    }
+
+    private WireMockServer CreateMockServer()
+    {
+        try
+        {
+            if (WireMockServer?.IsStarted ?? false)
+            {
+                return WireMockServer;
+            }
+
+            return WireMockServer.Start(port: 9876);
+        }
+        catch
+        {
+            Log.Logger.Error("Failed to create mock server");
+            return WireMockServer;
+        }
     }
 
     async Task IAsyncLifetime.DisposeAsync()
@@ -90,12 +110,14 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
         await adminDatabase.RunCommandAsync<BsonDocument>(command);
 
         bool isReplicaSetInitialized = false;
+
         while (!isReplicaSetInitialized)
         {
             BsonDocument replSetStatus = await adminDatabase
                 .RunCommandAsync<BsonDocument>(new BsonDocument("replSetGetStatus", 1));
 
             isReplicaSetInitialized = replSetStatus["ok"] == 1;
+
             if (!isReplicaSetInitialized)
             {
                 await Task.Delay(1000);
@@ -106,5 +128,8 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
 
 public class UserContextTest : IUserContext
 {
-    public string UserId => Guid.NewGuid().ToString();
+    public string UserId => "xpto";
 }
+
+[CollectionDefinition("IntegrationTestCollection")]
+public class IntegrationTestCollection : ICollectionFixture<CustomWebApplicationFactory> { }

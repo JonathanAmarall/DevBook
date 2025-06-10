@@ -4,7 +4,6 @@ namespace Domain.Users;
 
 public sealed class User : Entity
 {
-    public string Id { get; init; } = Guid.NewGuid().ToString();
     public string ExternalId { get; init; }
     public string Email { get; init; }
     public string Username { get; init; }

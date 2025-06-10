@@ -3,6 +3,8 @@ using FluentAssertions;
 using SharedKernel;
 
 namespace WebApi.Tests.Scenarios.Endpoints.LogEntry;
+
+[Collection("IntegrationTest collection")]
 public class SearchTests : IntegrationTestBase
 {
     private const string CreateLogEntryPath = "/api/v1/log-entry";

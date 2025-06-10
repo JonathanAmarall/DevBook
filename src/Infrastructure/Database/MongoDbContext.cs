@@ -1,6 +1,6 @@
 ﻿using Application.Abstractions.Data;
 using Domain.LogEntry;
-using Domain.Project;
+using Domain.Notifications;
 using Domain.Users;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
@@ -18,8 +18,8 @@ public class MongoDbContext : IDatabaseContext, IDisposable
     }
 
     public IMongoCollection<User> Users => _database.GetCollection<User>("Users");
-    public IMongoCollection<Project> Projects => _database.GetCollection<Project>("Projects");
     public IMongoCollection<LogEntry> LogEntries => _database.GetCollection<LogEntry>("LogEntries");
+    public IMongoCollection<Notification> Notifications => _database.GetCollection<Notification>("Notifications");
 
     public void Dispose()
     {

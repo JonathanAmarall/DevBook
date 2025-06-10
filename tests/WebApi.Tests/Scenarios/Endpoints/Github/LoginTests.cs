@@ -6,6 +6,7 @@ using Infrastructure.ExternalServices.Github;
 using Newtonsoft.Json;
 
 namespace WebApi.Tests.Scenarios.Endpoints.Github;
+//[Collection("IntegrationTestCollection")]
 public class LoginTests : IntegrationTestBase
 {
     private const string LoginPath = "/auth/github/login";

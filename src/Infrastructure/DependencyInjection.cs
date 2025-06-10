@@ -6,6 +6,7 @@ using Domain.Services;
 using Infrastructure.Authentication;
 using Infrastructure.Authorization;
 using Infrastructure.Database;
+using Infrastructure.DomainEvents;
 using Infrastructure.ExternalServices.Gemini;
 using Infrastructure.ExternalServices.Github;
 using Infrastructure.Services.TextGeneration;
@@ -38,7 +39,15 @@ public static class DependencyInjection
     private static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+        services.AddTransient<IDomainEventsDispatcher, DomainEventsDispatcher>();
 
+        services.AddRefitClients(configuration);
+
+        return services;
+    }
+
+    private static void AddRefitClients(this IServiceCollection services, IConfiguration configuration)
+    {
         services.AddRefitClient<IGithubAuthApi>(new RefitSettings
         {
             ContentSerializer = new FormUrlEncodedDeserializer()
@@ -63,8 +72,6 @@ public static class DependencyInjection
             .ConfigureHttpClient(c =>
                 c.BaseAddress = new Uri(configuration["GeminiApiSettings:BaseAddress"]!))
             .AddHttpMessageHandler<GeminiApiKeyHandler>();
-
-        return services;
     }
 
     private static IServiceCollection AddGithubOAuthProvider(this IServiceCollection services)

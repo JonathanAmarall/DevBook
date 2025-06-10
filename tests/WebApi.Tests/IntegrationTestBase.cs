@@ -7,7 +7,7 @@ using WireMock.Server;
 
 namespace WebApi.Tests;
 
-public abstract class IntegrationTestBase : IClassFixture<CustomWebApplicationFactory>, IAsyncLifetime, IDisposable
+public abstract class IntegrationTestBase : IClassFixture<CustomWebApplicationFactory>, IDisposable
 {
     protected readonly CustomWebApplicationFactory _factory;
     protected readonly HttpClient _httpClient;
@@ -20,27 +20,15 @@ public abstract class IntegrationTestBase : IClassFixture<CustomWebApplicationFa
         _factory = factory;
         _httpClient = factory.CreateClient();
         _mongoClient = new MongoClient(factory.ConnectionString);
-    }
 
-    public async Task DisposeAsync()
-    {
-        _mongoClient.Dispose();
-        _httpClient.Dispose();
-        await _factory.DisposeAsync();
-
-        await Task.CompletedTask;
-    }
-
-    public async Task InitializeAsync()
-    {
         IMongoDatabase db = _mongoClient.GetDatabase(_factory.DatabaseName);
+        User user = GetUser();
         IMongoCollection<User> collection = db.GetCollection<User>("Users");
 
-        await collection.InsertManyAsync([
-            GetUser()
-            ]);
-
-        await Task.CompletedTask;
+        collection.ReplaceOne(
+            Builders<User>.Filter.Eq(u => u.Id, user.Id),
+            user,
+            new ReplaceOptions { IsUpsert = true });
     }
 
     protected User GetUser()
@@ -92,5 +80,7 @@ public abstract class IntegrationTestBase : IClassFixture<CustomWebApplicationFa
     public void Dispose()
     {
         _mongoClient.Dispose();
+        _httpClient.Dispose();
+        _factory.Dispose();
     }
 }

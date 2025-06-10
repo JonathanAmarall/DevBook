@@ -1,9 +1,9 @@
 ﻿using Domain.Users;
-using MediatR;
+using SharedKernel;
 
 namespace Application.Users.Register;
 
-internal sealed class ExternalUserRegisteredDomainEventHandler : INotificationHandler<UserRegisteredDomainEvent>
+internal sealed class ExternalUserRegisteredDomainEventHandler : IDomainEventHandler<UserRegisteredDomainEvent>
 {
     public Task Handle(UserRegisteredDomainEvent notification, CancellationToken cancellationToken)
     {
