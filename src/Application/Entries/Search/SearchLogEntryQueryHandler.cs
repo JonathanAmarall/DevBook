@@ -2,7 +2,7 @@
 using Application.Abstractions.Authentication;
 using Application.Abstractions.Data;
 using Application.Abstractions.Messaging;
-using Application.LogBook.Search;
+using Application.Entries.Search;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using SharedKernel;
@@ -15,37 +15,37 @@ internal sealed class SearchLogEntryQueryHandler(
 {
     public async Task<Result<PagedList<SearchLogEntryQueryResponse>>> Handle(SearchLogEntryQuery request, CancellationToken cancellationToken)
     {
-        var filters = new List<FilterDefinition<Domain.LogEntry.LogEntry>>
+        var filters = new List<FilterDefinition<Domain.LogEntry.Entry>>
         {
-            Builders<Domain.LogEntry.LogEntry>.Filter.Eq(x => x.UserId, userContext.UserId)
+            Builders<Domain.LogEntry.Entry>.Filter.Eq(x => x.UserId, userContext.UserId)
         };
 
         if (request.Category.HasValue)
         {
-            filters.Add(Builders<Domain.LogEntry.LogEntry>.Filter.Eq(x => x.Category, request.Category));
+            filters.Add(Builders<Domain.LogEntry.Entry>.Filter.Eq(x => x.Category, request.Category));
         }
 
         if (request.Status.HasValue)
         {
-            filters.Add(Builders<Domain.LogEntry.LogEntry>.Filter.Eq(x => x.Status, request.Status));
+            filters.Add(Builders<Domain.LogEntry.Entry>.Filter.Eq(x => x.Status, request.Status));
         }
 
         if (!string.IsNullOrWhiteSpace(request.Title))
         {
             filters.Add(
-                Builders<Domain.LogEntry.LogEntry>.Filter.Regex(
+                Builders<Domain.LogEntry.Entry>.Filter.Regex(
                     x => x.Title,
                     new BsonRegularExpression($".*{Regex.Escape(request.Title)}.*", "i")
                 )
             );
         }
 
-        FilterDefinition<Domain.LogEntry.LogEntry>? filter = Builders<Domain.LogEntry.LogEntry>.Filter.And(filters);
+        FilterDefinition<Domain.LogEntry.Entry>? filter = Builders<Domain.LogEntry.Entry>.Filter.And(filters);
         long totalCount = await databaseContext.LogEntries.CountDocumentsAsync(filter, cancellationToken: cancellationToken);
         IEnumerable<SearchLogEntryQueryResponse> pagedData = await databaseContext.LogEntries.Find(filter)
             .Skip((request.PageNumber - 1) * request.PageSize)
             .Limit(request.PageSize)
-            .Project<SearchLogEntryQueryResponse>(Builders<Domain.LogEntry.LogEntry>.Projection
+            .Project<SearchLogEntryQueryResponse>(Builders<Domain.LogEntry.Entry>.Projection
                 .Include(l => l.Id)
                 .Include(l => l.Title)
                 .Include(l => l.Status)

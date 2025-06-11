@@ -1,11 +1,11 @@
 ﻿using Application.Abstractions.Messaging;
-using Domain.LogEntry;
+using Domain.Entries;
 using SharedKernel;
 
-namespace Application.LogBook.Search;
+namespace Application.Entries.Search;
 public record SearchLogEntryQuery(
     string? Title,
-    LogCategory? Category,
+    EntryCategory? Category,
     List<string>? Tags,
-    LogStatus? Status,
+    EntryStatus? Status,
     DateTime? CreatedAt) : PagedRequest, IQuery<PagedList<SearchLogEntryQueryResponse>>;

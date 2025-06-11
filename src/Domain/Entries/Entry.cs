@@ -1,10 +1,10 @@
 ﻿using SharedKernel;
 
-namespace Domain.LogEntry;
+namespace Domain.Entries;
 
-public partial class LogEntry : Entity
+public partial class Entry : Entity
 {
-    public LogEntry(string title, string description, LogCategory category, List<string> tags, string userId)
+    public Entry(string title, string description, EntryCategory category, List<string> tags, string userId)
     {
         Title = title;
         Description = description;
@@ -12,13 +12,13 @@ public partial class LogEntry : Entity
         Tags = tags;
         UserId = userId;
 
-        if (Category == LogCategory.Bug || Category == LogCategory.Task)
+        if (Category == EntryCategory.Bug || Category == EntryCategory.Task)
         {
-            Status = LogStatus.Open;
+            Status = EntryStatus.Open;
         }
         else
         {
-            Status = LogStatus.Resolved;
+            Status = EntryStatus.Resolved;
             ResolvedAt = DateTime.UtcNow;
         }
     }
@@ -26,14 +26,14 @@ public partial class LogEntry : Entity
     public string Title { get; private set; }
     public string Description { get; private set; }
     public string UserId { get; private set; }
-    public LogCategory Category { get; private set; }
+    public EntryCategory Category { get; private set; }
     public List<string> Tags { get; private set; }
-    public LogStatus Status { get; private set; }
+    public EntryStatus Status { get; private set; }
     public DateTime? ResolvedAt { get; private set; }
 
     public void MarkAsResolved()
     {
-        Status = LogStatus.Resolved;
+        Status = EntryStatus.Resolved;
         ResolvedAt = DateTime.UtcNow;
     }
 }

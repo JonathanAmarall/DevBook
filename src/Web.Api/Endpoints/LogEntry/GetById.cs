@@ -1,5 +1,5 @@
-﻿using Application.LogBook.GetById;
-using Application.LogEntry.GetById;
+﻿using Application.Entries.GetById;
+using Application.LogBook.GetById;
 using MediatR;
 using SharedKernel;
 using Web.Api.Endpoints.Users;
@@ -14,7 +14,7 @@ public class GetById : IEndpoint
         app.MapGet("/api/v1/log-entry/{id}",
             async (string id, ISender sender, CancellationToken cancellationToken) =>
             {
-                Result<LogEntryResponse> response =
+                Result<EntryResponse> response =
                     await sender.Send(new GetLogEntryByIdQuery(id), cancellationToken);
 
                 return response.Match(Results.Ok, Results.NotFound);

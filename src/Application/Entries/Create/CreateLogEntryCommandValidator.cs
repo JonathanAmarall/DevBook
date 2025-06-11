@@ -1,9 +1,9 @@
-﻿using Application.LogEntry.Create;
+﻿using Application.Entries.Create;
 using FluentValidation;
 
 namespace Application.LogBook.Create;
 
-internal class CreateLogEntryCommandValidator : AbstractValidator<CreateLogEntryCommand>
+internal class CreateLogEntryCommandValidator : AbstractValidator<CreateEntryCommand>
 {
     public CreateLogEntryCommandValidator()
     {

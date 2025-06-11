@@ -1,6 +1,6 @@
-﻿namespace Domain.LogEntry;
+﻿namespace Domain.Entries;
 
-public enum LogCategory
+public enum EntryCategory
 {
     Bug = 0,
     Feature = 1,

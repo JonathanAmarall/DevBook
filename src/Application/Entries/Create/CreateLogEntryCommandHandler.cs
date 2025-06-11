@@ -1,14 +1,15 @@
 ﻿using Application.Abstractions.Authentication;
 using Application.Abstractions.Data;
 using Application.Abstractions.Messaging;
-using Application.LogEntry.GetById;
+using Application.Entries.Create;
+using Application.Entries.GetById;
 using Domain.Users;
 using MongoDB.Driver;
 using SharedKernel;
 
 namespace Application.LogEntry.Create;
 
-internal sealed class CreateLogEntryCommandHandler : ICommandHandler<CreateLogEntryCommand, LogEntryResponse>
+internal sealed class CreateLogEntryCommandHandler : ICommandHandler<CreateEntryCommand, EntryResponse>
 {
     private readonly IDatabaseContext _context;
     private readonly IUserContext userContext;
@@ -18,16 +19,16 @@ internal sealed class CreateLogEntryCommandHandler : ICommandHandler<CreateLogEn
         this.userContext = userContext;
     }
 
-    public async Task<Result<LogEntryResponse>> Handle(CreateLogEntryCommand request, CancellationToken cancellationToken)
+    public async Task<Result<EntryResponse>> Handle(CreateEntryCommand request, CancellationToken cancellationToken)
     {
         FilterDefinition<User> filter = Builders<User>.Filter.Eq(x => x.Id, userContext.UserId);
         User user = await _context.Users.Find(filter).SingleOrDefaultAsync(cancellationToken);
         if (user == null)
         {
-            return Result.Failure<LogEntryResponse>(UserErrors.NotFound(userContext.UserId));
+            return Result.Failure<EntryResponse>(UserErrors.NotFound(userContext.UserId));
         }
 
-        Domain.LogEntry.LogEntry logEntry = new(
+        Domain.LogEntry.Entry logEntry = new(
             request.Title,
             request.Description,
             request.Category,
@@ -36,6 +37,6 @@ internal sealed class CreateLogEntryCommandHandler : ICommandHandler<CreateLogEn
 
         await _context.LogEntries.InsertOneAsync(logEntry, cancellationToken: cancellationToken);
 
-        return Result.Success<LogEntryResponse>(new(logEntry));
+        return Result.Success<EntryResponse>(new(logEntry));
     }
 }

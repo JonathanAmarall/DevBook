@@ -1,5 +1,5 @@
-﻿using Application.LogEntry.GetById;
-using Domain.LogEntry;
+﻿using Application.Entries.GetById;
+using Domain.Entries;
 using FluentAssertions;
 
 namespace WebApi.Tests.Scenarios.Endpoints.LogEntry;
@@ -23,7 +23,7 @@ public class CreateTests : IntegrationTestBase
             Description = "Test Description",
             Tags = new[] { "tag1", "tag2" },
             ProjectName = "Test Project",
-            Category = LogCategory.Feature
+            Category = EntryCategory.Feature
         };
 
         using var content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(body), System.Text.Encoding.UTF8, "application/json");
@@ -38,15 +38,15 @@ public class CreateTests : IntegrationTestBase
 
         string responseBody = await response!.Content.ReadAsStringAsync();
 
-        LogEntryResponse logEntryResponse = Newtonsoft.Json.JsonConvert
-            .DeserializeObject<LogEntryResponse>(responseBody);
+        EntryResponse logEntryResponse = Newtonsoft.Json.JsonConvert
+            .DeserializeObject<EntryResponse>(responseBody);
 
         logEntryResponse.Should().NotBeNull();
         logEntryResponse!.Title.Should().Be(body.Title);
         logEntryResponse.Description.Should().Be(body.Description);
         logEntryResponse.Tags.Should().BeEquivalentTo(body.Tags);
         logEntryResponse.Category.Should().Be(body.Category.ToString());
-        logEntryResponse.Status.Should().Be(LogStatus.Resolved.ToString());
+        logEntryResponse.Status.Should().Be(EntryStatus.Resolved.ToString());
     }
 
     [Fact]
@@ -58,7 +58,7 @@ public class CreateTests : IntegrationTestBase
             Title = "Test Log Entry",
             Tags = new[] { "tag1", "tag2" },
             ProjectName = "Test Project",
-            Category = LogCategory.Feature
+            Category = EntryCategory.Feature
         };
 
         using var content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(body), System.Text.Encoding.UTF8, "application/json");

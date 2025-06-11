@@ -1,5 +1,5 @@
-﻿using Application.LogEntry.Create;
-using Application.LogEntry.GetById;
+﻿using Application.Entries.Create;
+using Application.Entries.GetById;
 using MediatR;
 using SharedKernel;
 using Web.Api.Extensions;
@@ -12,9 +12,9 @@ public class Create : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
         app.MapPost("/api/v1/log-entry",
-            async (CreateLogEntryCommand request, ISender sender, CancellationToken cancellationToken) =>
+            async (CreateEntryCommand request, ISender sender, CancellationToken cancellationToken) =>
             {
-                Result<LogEntryResponse> response = await sender.Send(request, cancellationToken);
+                Result<EntryResponse> response = await sender.Send(request, cancellationToken);
 
                 return response.Match(Results.Ok, CustomResults.Problem);
             })

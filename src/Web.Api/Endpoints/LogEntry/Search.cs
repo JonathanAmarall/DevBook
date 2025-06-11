@@ -1,5 +1,5 @@
-﻿using Application.LogBook.Search;
-using Domain.LogEntry;
+﻿using Application.Entries.Search;
+using Domain.Entries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel;
@@ -17,8 +17,8 @@ public class Search : IEndpoint
                 [FromQuery] string[]? tags,
                 [FromQuery] short? pageNumber,
                 [FromQuery] short? pageSize,
-                [FromQuery] LogCategory? category,
-                [FromQuery] LogStatus? status,
+                [FromQuery] EntryCategory? category,
+                [FromQuery] EntryStatus? status,
                 ISender sender, CancellationToken cancellationToken) =>
             {
                 Result<PagedList<SearchLogEntryQueryResponse>> response =

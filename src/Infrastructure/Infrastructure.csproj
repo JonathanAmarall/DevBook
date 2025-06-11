@@ -14,6 +14,10 @@
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
     <PackageReference Include="MongoDB.Driver" />
     <PackageReference Include="Newtonsoft.Json" />
+	<PackageReference Include="Quartz.Extensions.Hosting" />
+	<PackageReference Include="Quartz" />
+	<PackageReference Include="Quartzmin" />
+	<PackageReference Include="Quartzmin.SelfHost" />
 	<PackageReference Include="Refit.HttpClientFactory" />
 	<PackageReference Include="Scrutor" />
   </ItemGroup>

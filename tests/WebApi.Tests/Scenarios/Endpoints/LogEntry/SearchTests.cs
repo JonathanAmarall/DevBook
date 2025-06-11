@@ -1,4 +1,4 @@
-﻿using Application.LogBook.Search;
+﻿using Application.Entries.Search;
 using FluentAssertions;
 using SharedKernel;
 

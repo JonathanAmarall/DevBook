@@ -2,6 +2,7 @@
 using Application;
 using Application.Abstractions.Authentication;
 using Application.Abstractions.Data;
+using Application.Abstractions.Schedulers;
 using Domain.Services;
 using Infrastructure.Authentication;
 using Infrastructure.Authorization;
@@ -9,6 +10,7 @@ using Infrastructure.Database;
 using Infrastructure.DomainEvents;
 using Infrastructure.ExternalServices.Gemini;
 using Infrastructure.ExternalServices.Github;
+using Infrastructure.Quartz.Scheduling;
 using Infrastructure.Services.TextGeneration;
 using Infrastructure.Time;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -17,6 +19,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
+using Quartz;
 using Refit;
 using SharedKernel;
 
@@ -34,7 +37,8 @@ public static class DependencyInjection
             .AddAuthenticationInternal(configuration)
             .AddGithubOAuthProvider()
             .AddAuthorizationInternal()
-            .AddTextSummaryGenerator();
+            .AddTextSummaryGenerator()
+            .AddBackgroundJobs();
 
     private static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
     {
@@ -141,6 +145,17 @@ public static class DependencyInjection
         services.AddTransient<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
         services.AddTransient<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
+
+        return services;
+    }
+
+    private static IServiceCollection AddBackgroundJobs(this IServiceCollection services)
+    {
+        services.AddQuartzHostedService(opt => opt.WaitForJobsToComplete = true);
+
+        services.AddQuartz();
+
+        services.AddScoped<INotificationScheduler, NotificationScheduler>();
 
         return services;
     }

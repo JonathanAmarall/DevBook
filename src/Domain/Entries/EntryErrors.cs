@@ -1,7 +1,7 @@
 ﻿using SharedKernel;
 
-namespace Domain.LogEntry;
-public static class LogEntryErrors
+namespace Domain.Entries;
+public static class EntryErrors
 {
     public static Error NotFound(string logId) => Error.NotFound(
     "LogEntry.NotFound",

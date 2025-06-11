@@ -1,4 +1,4 @@
-﻿namespace Domain.LogEntry;
+﻿namespace Domain.Entries;
 
 public class Attachment
 {

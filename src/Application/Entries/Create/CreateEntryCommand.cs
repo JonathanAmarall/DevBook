@@ -1,13 +1,13 @@
 ﻿using Application.Abstractions.Messaging;
-using Application.LogEntry.GetById;
-using Domain.LogEntry;
+using Application.Entries.GetById;
+using Domain.Entries;
 
-namespace Application.LogEntry.Create;
-public class CreateLogEntryCommand : ICommand<LogEntryResponse>
+namespace Application.Entries.Create;
+public class CreateEntryCommand : ICommand<EntryResponse>
 {
     public string Title { get; init; } = string.Empty;
     public string Description { get; init; } = string.Empty;
-    public LogCategory Category { get; init; }
+    public EntryCategory Category { get; init; }
     public List<string> Tags { get; init; } = [];
     public string? ProjectName { get; init; } = string.Empty;
     public List<AttachmentLogEntryCommand> Attachments { get; init; } = [];

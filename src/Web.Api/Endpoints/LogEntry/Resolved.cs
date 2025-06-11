@@ -1,4 +1,5 @@
-﻿using Application.LogEntry.Complete;
+﻿using Application.Entries.GetById;
+using Application.LogEntry.Complete;
 using MediatR;
 using SharedKernel;
 using Web.Api.Extensions;
@@ -12,8 +13,8 @@ public class Resolved : IEndpoint
     {
         app.MapPost("/api/v1/log-entry/{logId}/resolved", async (string logId, ISender sender, CancellationToken cancellationToken) =>
         {
-            var request = new ResolvedLogEntryCommand(logId);
-            Result<Application.LogEntry.GetById.LogEntryResponse> result = await sender.Send(request, cancellationToken);
+            var request = new MarkEntryAsResolvedCommand(logId);
+            Result<EntryResponse> result = await sender.Send(request, cancellationToken);
             return result.Match(Results.NoContent, CustomResults.Problem);
         })
         .WithTags(Tags.LogEntry);
