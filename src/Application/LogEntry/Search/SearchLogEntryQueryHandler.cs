@@ -51,8 +51,8 @@ internal sealed class SearchLogEntryQueryHandler(
                 .Include(l => l.Status)
                 .Include(l => l.Tags)
                 .Include(l => l.Category)
-                .Include(l => l.CreatedAt))
-            .SortByDescending(x => x.CreatedAt)
+                .Include(l => l.CreatedOnUtc))
+            .SortByDescending(x => x.CreatedOnUtc)
             .ToListAsync(cancellationToken);
 
         return new PagedList<SearchLogEntryQueryResponse>(

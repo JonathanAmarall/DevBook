@@ -7,41 +7,61 @@ using WireMock.Server;
 
 namespace WebApi.Tests;
 
-public abstract class IntegrationTestBase : IClassFixture<CustomWebApplicationFactory>, IDisposable
+public abstract class IntegrationTestBase : IClassFixture<CustomWebApplicationFactory>, IAsyncLifetime, IDisposable
 {
-    protected readonly CustomWebApplicationFactory _factory;
-    protected readonly HttpClient _httpClient;
-    protected readonly MongoClient _mongoClient;
+    private readonly CustomWebApplicationFactory _factory;
+    protected HttpClient HttpClient;
+    protected MongoClient MongoClient;
+    protected IMongoDatabase Database;
 
-    protected readonly AutoFixture.Fixture _fixture = new();
+    protected readonly AutoFixture.Fixture Fixture = new();
 
     protected IntegrationTestBase(CustomWebApplicationFactory factory)
     {
         _factory = factory;
-        _httpClient = factory.CreateClient();
-        _mongoClient = new MongoClient(factory.ConnectionString);
+    }
 
-        IMongoDatabase db = _mongoClient.GetDatabase(_factory.DatabaseName);
-        User user = GetUser();
-        IMongoCollection<User> collection = db.GetCollection<User>("Users");
+    public async Task InitializeAsync()
+    {
+        await _factory.InitializeAsync();
 
-        collection.ReplaceOne(
-            Builders<User>.Filter.Eq(u => u.Id, user.Id),
-            user,
+        HttpClient = _factory.CreateClient();
+        MongoClient = new MongoClient(_factory.ConnectionString);
+        Database = MongoClient.GetDatabase(_factory.DatabaseName);
+
+        IMongoCollection<User> users = Database.GetCollection<User>("Users");
+
+        await users.ReplaceOneAsync(
+            Builders<User>.Filter.Eq(u => u.Id, GetUser().Id),
+            GetUser(),
             new ReplaceOptions { IsUpsert = true });
     }
 
-    protected User GetUser()
+    public async Task DisposeAsync()
     {
-        return new User { Id = "xpto", Email = "john.doe@mail.com", FullName = "John Doe", Username = "john.doe" };
+        HttpClient.Dispose();
+        MongoClient = null!;
+        await Task.CompletedTask;
     }
+
+    public void Dispose()
+    {
+        MongoClient?.Dispose();
+        HttpClient?.Dispose();
+    }
+
+    protected User GetUser() => new()
+    {
+        Id = "xpto",
+        Email = "john.doe@mail.com",
+        FullName = "John Doe",
+        Username = "john.doe"
+    };
 
     protected void SetupGetApiMock(string path, object response, int statusCode = 200)
     {
         _factory.WireMockServer
-            .Given(Request.Create()
-                .WithPath(path)
-                .UsingGet())
+            .Given(Request.Create().WithPath(path).UsingGet())
             .RespondWith(Response.Create()
                 .WithStatusCode(statusCode)
                 .WithHeader("Content-Type", "application/json")
@@ -76,11 +96,9 @@ public abstract class IntegrationTestBase : IClassFixture<CustomWebApplicationFa
            .Given(request)
            .RespondWith(response);
     }
+}
 
-    public void Dispose()
-    {
-        _mongoClient.Dispose();
-        _httpClient.Dispose();
-        _factory.Dispose();
-    }
+[CollectionDefinition("IntegrationTest", DisableParallelization = true)]
+public class IntegrationTestCollection : ICollectionFixture<CustomWebApplicationFactory>
+{
 }

@@ -12,7 +12,7 @@ public record LogEntryResponse
         Category = logEntry.Category.ToString();
         Tags = logEntry.Tags;
         Status = logEntry.Status.ToString();
-        CreatedAt = logEntry.CreatedAt;
+        CreatedOnUtc = logEntry.CreatedOnUtc;
         ResolvedAt = logEntry.ResolvedAt;
     }
 
@@ -28,6 +28,6 @@ public record LogEntryResponse
     public string Category { get; init; }
     public List<string> Tags { get; init; }
     public string Status { get; init; }
-    public DateTime CreatedAt { get; init; }
+    public DateTime CreatedOnUtc { get; init; }
     public DateTime? ResolvedAt { get; init; }
 }

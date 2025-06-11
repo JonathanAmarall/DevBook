@@ -28,7 +28,7 @@ public class CreateTests : IntegrationTestBase
 
         using var content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(body), System.Text.Encoding.UTF8, "application/json");
         // Act
-        HttpResponseMessage? response = await _httpClient.PostAsync(CreateLogEntryPath, content);
+        HttpResponseMessage? response = await HttpClient.PostAsync(CreateLogEntryPath, content);
 
         // Assert
         response?.EnsureSuccessStatusCode();
@@ -63,7 +63,7 @@ public class CreateTests : IntegrationTestBase
 
         using var content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(body), System.Text.Encoding.UTF8, "application/json");
         // Act
-        HttpResponseMessage? response = await _httpClient.PostAsync(CreateLogEntryPath, content);
+        HttpResponseMessage? response = await HttpClient.PostAsync(CreateLogEntryPath, content);
 
         // Assert
         response.IsSuccessStatusCode.Should().BeFalse();

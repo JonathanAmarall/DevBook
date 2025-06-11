@@ -32,8 +32,7 @@ internal sealed class CreateLogEntryCommandHandler : ICommandHandler<CreateLogEn
             request.Description,
             request.Category,
             request.Tags,
-            userContext.UserId,
-            request.ProjectName);
+            userContext.UserId);
 
         await _context.LogEntries.InsertOneAsync(logEntry, cancellationToken: cancellationToken);
 
