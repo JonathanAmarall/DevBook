@@ -22,6 +22,7 @@ builder.Host.UseSerilog((context, loggerConfig) =>
 
 builder.Services.AddSwaggerGenWithAuth();
 
+
 builder.Services
     .AddApplication(builder.Configuration)
     .AddPresentation()
@@ -30,6 +31,8 @@ builder.Services
 builder.Services.AddEndpoints(Assembly.GetExecutingAssembly());
 
 WebApplication app = builder.Build();
+
+
 
 app.UseCors("Cors");
 

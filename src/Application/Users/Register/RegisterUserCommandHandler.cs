@@ -8,7 +8,10 @@ using SharedKernel;
 
 namespace Application.Users.Register;
 
-internal sealed class RegisterUserCommandHandler(IDatabaseContext context, IPasswordHasher passwordHasher)
+internal sealed class RegisterUserCommandHandler(
+    IDatabaseContext context,
+    IPasswordHasher passwordHasher,
+    IDomainEventsDispatcher eventsDispatcher)
     : ICommandHandler<RegisterUserCommand, string>
 {
     public async Task<Result<string>> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
@@ -27,9 +30,9 @@ internal sealed class RegisterUserCommandHandler(IDatabaseContext context, IPass
             PasswordHash = passwordHasher.Hash(command.Password)
         };
 
-        user.Raise(new UserRegisteredDomainEvent(user.Id));
-
         await context.Users.InsertOneAsync(user, cancellationToken: cancellationToken);
+
+        await eventsDispatcher.DispatchAsync([new UserRegisteredDomainEvent(user.Id)], cancellationToken);
 
         return user.Id;
     }

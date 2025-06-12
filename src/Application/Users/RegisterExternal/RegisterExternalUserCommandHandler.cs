@@ -13,7 +13,8 @@ namespace Application.Users.RegisterExternal;
 internal sealed class RegisterExternalUserCommandHandler(
     IDatabaseContext context,
     ITokenProvider tokenProvider,
-    IOAuthProvider oAuthProvider) : ICommandHandler<RegisterExternalUserCommand, UserResponse>
+    IOAuthProvider oAuthProvider,
+    IDomainEventsDispatcher eventsDispatcher) : ICommandHandler<RegisterExternalUserCommand, UserResponse>
 {
     public async Task<Result<UserResponse>> Handle(RegisterExternalUserCommand command, CancellationToken cancellationToken)
     {
@@ -40,9 +41,9 @@ internal sealed class RegisterExternalUserCommandHandler(
             Username = oAuthUserResponse.Value.Name
         };
 
-        user.Raise(new UserRegisteredDomainEvent(user.Id));
-
         await context.Users.InsertOneAsync(user, cancellationToken: cancellationToken);
+
+        await eventsDispatcher.DispatchAsync([new UserRegisteredDomainEvent(user.Id)], cancellationToken);
 
         return CreateSuccessResult(user);
     }

@@ -1,5 +1,5 @@
-﻿using Domain.Users;
-using Infrastructure.DomainEvents;
+﻿using Application.Abstractions.Messaging;
+using Domain.Users;
 using Infrastructure.ExternalServices.Gemini;
 
 namespace Web.Api.Endpoints.Summary;

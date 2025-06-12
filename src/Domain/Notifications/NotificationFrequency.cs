@@ -2,8 +2,8 @@
 
 public enum NotificationFrequency
 {
-    Once,
-    Daily,
-    Weekly,
-    Immediate
+    Once = 1,
+    Daily = 2,
+    Weekly = 3,
+    Immediate = 4
 }

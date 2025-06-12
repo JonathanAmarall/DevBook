@@ -1,6 +1,6 @@
 ﻿using SharedKernel;
 
-namespace Infrastructure.DomainEvents;
+namespace Application.Abstractions.Messaging;
 
 public interface IDomainEventsDispatcher
 {

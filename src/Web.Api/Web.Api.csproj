@@ -18,8 +18,6 @@
     <PackageReference Include="Refit.HttpClientFactory" />
     <PackageReference Include="Serilog.AspNetCore" />
     <PackageReference Include="Serilog.Sinks.Seq" />
-	<PackageReference Include="Quartzmin" />
-	<PackageReference Include="Quartzmin.SelfHost" />
     <PackageReference Include="Swashbuckle.AspNetCore" />
   </ItemGroup>
 

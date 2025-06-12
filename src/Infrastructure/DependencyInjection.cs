@@ -2,6 +2,7 @@
 using Application;
 using Application.Abstractions.Authentication;
 using Application.Abstractions.Data;
+using Application.Abstractions.Messaging;
 using Application.Abstractions.Schedulers;
 using Domain.Services;
 using Infrastructure.Authentication;
