@@ -17,6 +17,7 @@
     <PackageVersion Include="Quartz.Extensions.Hosting" Version="3.14.0" />
     <PackageVersion Include="Refit" Version="8.0.0" />
     <PackageVersion Include="Refit.HttpClientFactory" Version="8.0.0" />
+    <PackageVersion Include="SilkierQuartz" Version="9.0.391" />
     <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.5.0.109200" />
     <!-- SharedKernel -->
     <PackageVersion Include="MediatR.Contracts" Version="2.0.1" />

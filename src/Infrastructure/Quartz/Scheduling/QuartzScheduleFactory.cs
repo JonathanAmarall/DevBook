@@ -6,25 +6,25 @@ using Quartz;
 namespace Infrastructure.Quartz.Scheduling;
 public static class QuartzScheduleFactory
 {
-    public static (IJobDetail job, ITrigger trigger) CreateJobFromNotification(Notification notification)
+    public static (IJobDetail job, ITrigger trigger) CreateJobFromNotificationSchedule(NotificationSchedule schedule)
     {
         IJobDetail job = JobBuilder.Create<SendNotificationJob>()
-            .WithIdentity($"notification-{notification.Id}")
-            .UsingJobData("NotificationId", notification.Id.ToString())
+            .WithIdentity($"notification-{schedule.NotificationId}")
+            .UsingJobData("NotificationId", schedule.NotificationId.ToString())
             .Build();
 
         TriggerBuilder triggerBuilder = TriggerBuilder.Create()
-            .WithIdentity($"trigger-{notification.Id}");
+            .WithIdentity($"trigger-{schedule.NotificationId}");
 
-        TimeOnly time = notification.ScheduledTime ?? new TimeOnly(9, 0);
+        TimeOnly time = schedule.ScheduledTime ?? new TimeOnly(9, 0);
 
-        if (notification.Frequency == NotificationFrequency.Daily)
+        if (schedule.Frequency == NotificationFrequency.Daily)
         {
             triggerBuilder.WithSchedule(CronScheduleBuilder.DailyAtHourAndMinute(time.Hour, time.Minute));
         }
-        else if (notification.Frequency == NotificationFrequency.Weekly && notification.DaysOfWeek.Any())
+        else if (schedule.Frequency == NotificationFrequency.Weekly && schedule.DaysOfWeek.Any())
         {
-            string days = string.Join(",", notification.DaysOfWeek.Select(d => d.ToString()[..3].ToUpper(CultureInfo.CurrentCulture)));
+            string days = string.Join(",", schedule.DaysOfWeek.Select(d => d.ToString()[..3].ToUpper(CultureInfo.CurrentCulture)));
             string cron = $"0 {time.Minute} {time.Hour} ? * {days}";
             triggerBuilder.WithCronSchedule(cron);
         }

@@ -5,16 +5,16 @@ using FluentAssertions;
 using Infrastructure.ExternalServices.Github;
 using Newtonsoft.Json;
 
-namespace WebApi.Tests.Scenarios.Endpoints.Github;
+namespace WebApi.Tests.Scenarios.Endpoints.Users;
 //[Collection("IntegrationTestCollection")]
-public class LoginTests : IntegrationTestBase
+public class RegisterExternalTests : IntegrationTestBase
 {
-    private const string LoginPath = "/auth/github/login";
+    private const string LoginPath = "api/v1/users/login/external";
     private const string OAuthAccessTokenEndpointPath = "*/login/oauth/access_token*";
     private const string GetUserEndpointPath = "*/user*";
     private readonly CustomWebApplicationFactory _factory;
 
-    public LoginTests(CustomWebApplicationFactory factory) : base(factory)
+    public RegisterExternalTests(CustomWebApplicationFactory factory) : base(factory)
     {
         _factory = factory;
     }

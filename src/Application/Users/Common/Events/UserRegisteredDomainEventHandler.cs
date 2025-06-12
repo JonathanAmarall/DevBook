@@ -19,13 +19,24 @@ internal sealed class ExternalUserRegisteredDomainEventHandler : IDomainEventHan
 
     public async Task Handle(UserRegisteredDomainEvent @event, CancellationToken cancellationToken)
     {
-        Notification notification = NotificationFactory.CreateDefaultReminderEntries(@event.UserId);
+        Notification notification = new(
+            "Está na hora de adicionar uma nova entrada no seu diário!",
+            "ReminderToAddEntry.",
+            @event.UserId,
+            NotificationType.Reminder);
+
+        NotificationSchedule schedule = NotificationScheduleFactory.CreateDefaultReminder(notification);
 
         await _databaseContext.Notifications.InsertOneAsync(
             notification,
             cancellationToken: cancellationToken
         );
 
-        await _notificationScheduler.ScheduleAsync(notification);
+        await _databaseContext.NotificationSchedules.InsertOneAsync(
+           schedule,
+           cancellationToken: cancellationToken
+       );
+
+        await _notificationScheduler.ScheduleAsync(schedule);
     }
 }

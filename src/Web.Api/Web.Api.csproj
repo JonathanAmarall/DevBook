@@ -18,6 +18,7 @@
     <PackageReference Include="Refit.HttpClientFactory" />
     <PackageReference Include="Serilog.AspNetCore" />
     <PackageReference Include="Serilog.Sinks.Seq" />
+    <PackageReference Include="SilkierQuartz" />
     <PackageReference Include="Swashbuckle.AspNetCore" />
   </ItemGroup>
 

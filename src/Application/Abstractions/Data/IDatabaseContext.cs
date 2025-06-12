@@ -9,4 +9,5 @@ public interface IDatabaseContext
     IMongoCollection<Entry> LogEntries { get; }
     IMongoCollection<User> Users { get; }
     IMongoCollection<Notification> Notifications { get; }
+    IMongoCollection<NotificationSchedule> NotificationSchedules { get; }
 }

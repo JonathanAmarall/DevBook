@@ -12,10 +12,10 @@ public class NotificationScheduler : INotificationScheduler
         _factory = factory;
     }
 
-    public async Task ScheduleAsync(Notification notification)
+    public async Task ScheduleAsync(NotificationSchedule schedule)
     {
         IScheduler scheduler = await _factory.GetScheduler();
-        (IJobDetail job, ITrigger trigger) = QuartzScheduleFactory.CreateJobFromNotification(notification);
+        (IJobDetail job, ITrigger trigger) = QuartzScheduleFactory.CreateJobFromNotificationSchedule(schedule);
         await scheduler.ScheduleJob(job, trigger);
     }
 }

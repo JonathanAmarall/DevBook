@@ -2,12 +2,12 @@
 using FluentAssertions;
 using SharedKernel;
 
-namespace WebApi.Tests.Scenarios.Endpoints.LogEntry;
+namespace WebApi.Tests.Scenarios.Endpoints.Entries;
 
 [Collection("IntegrationTest collection")]
 public class SearchTests : IntegrationTestBase
 {
-    private const string SearchLogEntryPath = "/api/v1/log-entry";
+    private const string SearchLogEntryPath = "/api/v1/entries";
 
     public SearchTests(CustomWebApplicationFactory factory) : base(factory)
     {
