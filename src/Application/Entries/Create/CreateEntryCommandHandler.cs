@@ -1,19 +1,19 @@
 ﻿using Application.Abstractions.Authentication;
 using Application.Abstractions.Data;
 using Application.Abstractions.Messaging;
-using Application.Entries.Create;
 using Application.Entries.GetById;
+using Domain.Entries;
 using Domain.Users;
 using MongoDB.Driver;
 using SharedKernel;
 
-namespace Application.LogEntry.Create;
+namespace Application.Entries.Create;
 
-internal sealed class CreateLogEntryCommandHandler : ICommandHandler<CreateEntryCommand, EntryResponse>
+internal sealed class CreateEntryCommandHandler : ICommandHandler<CreateEntryCommand, EntryResponse>
 {
     private readonly IDatabaseContext _context;
     private readonly IUserContext userContext;
-    public CreateLogEntryCommandHandler(IDatabaseContext context, IUserContext userContext)
+    public CreateEntryCommandHandler(IDatabaseContext context, IUserContext userContext)
     {
         _context = context;
         this.userContext = userContext;
@@ -28,15 +28,15 @@ internal sealed class CreateLogEntryCommandHandler : ICommandHandler<CreateEntry
             return Result.Failure<EntryResponse>(UserErrors.NotFound(userContext.UserId));
         }
 
-        Domain.LogEntry.Entry logEntry = new(
+        Entry entry = new(
             request.Title,
             request.Description,
             request.Category,
             request.Tags,
             userContext.UserId);
 
-        await _context.LogEntries.InsertOneAsync(logEntry, cancellationToken: cancellationToken);
+        await _context.LogEntries.InsertOneAsync(entry, cancellationToken: cancellationToken);
 
-        return Result.Success<EntryResponse>(new(logEntry));
+        return Result.Success<EntryResponse>(new(entry));
     }
 }

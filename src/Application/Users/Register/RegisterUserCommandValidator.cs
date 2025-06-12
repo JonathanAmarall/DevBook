@@ -2,7 +2,7 @@
 
 namespace Application.Users.Register;
 
-internal sealed class RegisterExternalUserCommandValidator : AbstractValidator<RegisterExternalUserCommand>
+internal sealed class RegisterExternalUserCommandValidator : AbstractValidator<RegisterUserCommand>
 {
     public RegisterExternalUserCommandValidator()
     {

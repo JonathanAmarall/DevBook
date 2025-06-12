@@ -2,5 +2,5 @@
 
 namespace Application.Users.Register;
 
-public sealed record RegisterExternalUserCommand(string Email, string FullName, string Username, string Password)
+public sealed record RegisterUserCommand(string Email, string FullName, string Username, string Password)
     : ICommand<string>;

@@ -8,10 +8,10 @@ using SharedKernel;
 
 namespace Application.Users.Register;
 
-internal sealed class RegisterExternalUserCommandHandler(IDatabaseContext context, IPasswordHasher passwordHasher)
-    : ICommandHandler<RegisterExternalUserCommand, string>
+internal sealed class RegisterUserCommandHandler(IDatabaseContext context, IPasswordHasher passwordHasher)
+    : ICommandHandler<RegisterUserCommand, string>
 {
-    public async Task<Result<string>> Handle(RegisterExternalUserCommand command, CancellationToken cancellationToken)
+    public async Task<Result<string>> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
     {
         FilterDefinition<User> filter = Builders<User>.Filter.Eq(x => x.Email, command.Email);
         if (await context.Users.Find(filter).FirstOrDefaultAsync(cancellationToken) != null)

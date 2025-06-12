@@ -2,7 +2,6 @@
 using Application.Abstractions.Data;
 using Application.Abstractions.Messaging;
 using Application.Entries.GetById;
-using Application.LogEntry.Complete;
 using Domain.Entries;
 using MongoDB.Driver;
 using SharedKernel;

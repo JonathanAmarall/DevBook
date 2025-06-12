@@ -1,18 +1,17 @@
 ﻿using Application.Abstractions.Authentication;
 using Application.Abstractions.Data;
 using Application.Abstractions.Messaging;
-using Application.LogBook.GetById;
 using Domain.Entries;
 using MongoDB.Driver;
 using SharedKernel;
 
 namespace Application.Entries.GetById;
 
-internal sealed class GetLogEntryByIdQueryHandler(
+internal sealed class GetEntryByIdQueryHandler(
     IDatabaseContext databaseContext,
-    IUserContext userContext) : IQueryHandler<GetLogEntryByIdQuery, EntryResponse>
+    IUserContext userContext) : IQueryHandler<GetEntryByIdQuery, EntryResponse>
 {
-    public async Task<Result<EntryResponse>> Handle(GetLogEntryByIdQuery request, CancellationToken cancellationToken)
+    public async Task<Result<EntryResponse>> Handle(GetEntryByIdQuery request, CancellationToken cancellationToken)
     {
         var filters = new List<FilterDefinition<Entry>>
         {

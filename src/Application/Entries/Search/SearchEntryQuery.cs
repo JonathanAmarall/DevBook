@@ -3,9 +3,9 @@ using Domain.Entries;
 using SharedKernel;
 
 namespace Application.Entries.Search;
-public record SearchLogEntryQuery(
+public record SearchEntryQuery(
     string? Title,
     EntryCategory? Category,
     List<string>? Tags,
     EntryStatus? Status,
-    DateTime? CreatedAt) : PagedRequest, IQuery<PagedList<SearchLogEntryQueryResponse>>;
+    DateTime? CreatedAt) : PagedRequest, IQuery<PagedList<SearchEntryQueryResponse>>;

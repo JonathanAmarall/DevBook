@@ -2,50 +2,50 @@
 using Application.Abstractions.Authentication;
 using Application.Abstractions.Data;
 using Application.Abstractions.Messaging;
-using Application.Entries.Search;
+using Domain.Entries;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using SharedKernel;
 
-namespace Application.LogEntry.Search;
+namespace Application.Entries.Search;
 
-internal sealed class SearchLogEntryQueryHandler(
+internal sealed class SearchEntryQueryHandler(
     IDatabaseContext databaseContext,
-    IUserContext userContext) : IQueryHandler<SearchLogEntryQuery, PagedList<SearchLogEntryQueryResponse>>
+    IUserContext userContext) : IQueryHandler<SearchEntryQuery, PagedList<SearchEntryQueryResponse>>
 {
-    public async Task<Result<PagedList<SearchLogEntryQueryResponse>>> Handle(SearchLogEntryQuery request, CancellationToken cancellationToken)
+    public async Task<Result<PagedList<SearchEntryQueryResponse>>> Handle(SearchEntryQuery request, CancellationToken cancellationToken)
     {
-        var filters = new List<FilterDefinition<Domain.LogEntry.Entry>>
+        var filters = new List<FilterDefinition<Entry>>
         {
-            Builders<Domain.LogEntry.Entry>.Filter.Eq(x => x.UserId, userContext.UserId)
+            Builders<Entry>.Filter.Eq(x => x.UserId, userContext.UserId)
         };
 
         if (request.Category.HasValue)
         {
-            filters.Add(Builders<Domain.LogEntry.Entry>.Filter.Eq(x => x.Category, request.Category));
+            filters.Add(Builders<Entry>.Filter.Eq(x => x.Category, request.Category));
         }
 
         if (request.Status.HasValue)
         {
-            filters.Add(Builders<Domain.LogEntry.Entry>.Filter.Eq(x => x.Status, request.Status));
+            filters.Add(Builders<Entry>.Filter.Eq(x => x.Status, request.Status));
         }
 
         if (!string.IsNullOrWhiteSpace(request.Title))
         {
             filters.Add(
-                Builders<Domain.LogEntry.Entry>.Filter.Regex(
+                Builders<Entry>.Filter.Regex(
                     x => x.Title,
                     new BsonRegularExpression($".*{Regex.Escape(request.Title)}.*", "i")
                 )
             );
         }
 
-        FilterDefinition<Domain.LogEntry.Entry>? filter = Builders<Domain.LogEntry.Entry>.Filter.And(filters);
+        FilterDefinition<Entry>? filter = Builders<Entry>.Filter.And(filters);
         long totalCount = await databaseContext.LogEntries.CountDocumentsAsync(filter, cancellationToken: cancellationToken);
-        IEnumerable<SearchLogEntryQueryResponse> pagedData = await databaseContext.LogEntries.Find(filter)
+        IEnumerable<SearchEntryQueryResponse> pagedData = await databaseContext.LogEntries.Find(filter)
             .Skip((request.PageNumber - 1) * request.PageSize)
             .Limit(request.PageSize)
-            .Project<SearchLogEntryQueryResponse>(Builders<Domain.LogEntry.Entry>.Projection
+            .Project<SearchEntryQueryResponse>(Builders<Entry>.Projection
                 .Include(l => l.Id)
                 .Include(l => l.Title)
                 .Include(l => l.Status)
@@ -55,7 +55,7 @@ internal sealed class SearchLogEntryQueryHandler(
             .SortByDescending(x => x.CreatedOnUtc)
             .ToListAsync(cancellationToken);
 
-        return new PagedList<SearchLogEntryQueryResponse>(
+        return new PagedList<SearchEntryQueryResponse>(
             pagedData,
             request.PageNumber.GetValueOrDefault(),
             request.PageSize.GetValueOrDefault(),

@@ -28,8 +28,8 @@ public class SearchTests : IntegrationTestBase
 
         string responseBody = await response!.Content.ReadAsStringAsync();
 
-        PagedList<SearchLogEntryQueryResponse>? logEntryResponse = Newtonsoft.Json.JsonConvert
-            .DeserializeObject<PagedList<SearchLogEntryQueryResponse>>(responseBody);
+        PagedList<SearchEntryQueryResponse>? logEntryResponse = Newtonsoft.Json.JsonConvert
+            .DeserializeObject<PagedList<SearchEntryQueryResponse>>(responseBody);
 
         logEntryResponse.Should().NotBeNull();
     }

@@ -2,7 +2,7 @@
 
 namespace Application.Entries.Search;
 
-public record SearchLogEntryQueryResponse
+public record SearchEntryQueryResponse
 {
     public string Id { get; init; }
     public string Title { get; init; }
