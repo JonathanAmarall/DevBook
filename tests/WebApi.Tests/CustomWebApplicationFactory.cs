@@ -2,6 +2,7 @@
 using Application.Abstractions.Data;
 using DotNet.Testcontainers.Builders;
 using Infrastructure.Database;
+using Infrastructure.Database.Context;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;

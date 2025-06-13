@@ -16,7 +16,7 @@ internal sealed class GithubLoginUserCommandHandler(
 {
     public async Task<Result<UserResponse>> Handle(LoginUserCommand command, CancellationToken cancellationToken)
     {
-        User? user = await context.Users.Find(x => x.Email == command.Email)
+        User? user = await context.GetCollection<User>("Users").Find(x => x.Email == command.Email)
             .SingleOrDefaultAsync(cancellationToken);
 
         if (user is null || user.IsExternalUser())

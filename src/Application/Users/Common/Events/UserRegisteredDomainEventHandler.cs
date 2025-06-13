@@ -1,6 +1,6 @@
-﻿using Application.Abstractions.Data;
-using Application.Abstractions.Schedulers;
+﻿using Application.Abstractions.Schedulers;
 using Domain.Notifications;
+using Domain.Repositories;
 using Domain.Users;
 using SharedKernel;
 
@@ -9,12 +9,16 @@ namespace Application.Users.Common.Events;
 internal sealed class ExternalUserRegisteredDomainEventHandler : IDomainEventHandler<UserRegisteredDomainEvent>
 {
     private readonly INotificationScheduler _notificationScheduler;
-    private readonly IDatabaseContext _databaseContext;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly INotificationRespository _notificationRepository;
+    private readonly INotificationScheduleRespository _notificationScheduleRepository;
 
-    public ExternalUserRegisteredDomainEventHandler(INotificationScheduler notificationScheduler, IDatabaseContext databaseContext)
+    public ExternalUserRegisteredDomainEventHandler(INotificationScheduler notificationScheduler, INotificationRespository notificationRepository, INotificationScheduleRespository notificationScheduleRepository, IUnitOfWork unitOfWork)
     {
         _notificationScheduler = notificationScheduler;
-        _databaseContext = databaseContext;
+        _notificationRepository = notificationRepository;
+        _notificationScheduleRepository = notificationScheduleRepository;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task Handle(UserRegisteredDomainEvent @event, CancellationToken cancellationToken)
@@ -27,15 +31,19 @@ internal sealed class ExternalUserRegisteredDomainEventHandler : IDomainEventHan
 
         NotificationSchedule schedule = NotificationScheduleFactory.CreateDailyReminder(notification);
 
-        await _databaseContext.Notifications.InsertOneAsync(
+        await _unitOfWork.StartTransactionAsync(cancellationToken);
+
+        await _notificationRepository.AddAsync(
             notification,
             cancellationToken: cancellationToken
         );
 
-        await _databaseContext.NotificationSchedules.InsertOneAsync(
+        await _notificationScheduleRepository.AddAsync(
            schedule,
            cancellationToken: cancellationToken
        );
+
+        await _unitOfWork.CommitChangesAsync(cancellationToken);
 
         await _notificationScheduler.ScheduleAsync(schedule);
     }

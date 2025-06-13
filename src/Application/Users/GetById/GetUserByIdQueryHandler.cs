@@ -19,7 +19,7 @@ internal sealed class GetUserByIdQueryHandler(IDatabaseContext context, IUserCon
             return Result.Failure<UserResponse>(UserErrors.Unauthorized());
         }
 
-        User? user = await context.Users.Find(x => x.Id == query.UserId)
+        User? user = await context.GetCollection<User>("Users").Find(x => x.Id == query.UserId)
             .SingleOrDefaultAsync(cancellationToken);
 
         if (user is null)

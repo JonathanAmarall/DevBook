@@ -22,7 +22,7 @@ internal sealed class CreateEntryCommandHandler : ICommandHandler<CreateEntryCom
     public async Task<Result<EntryResponse>> Handle(CreateEntryCommand request, CancellationToken cancellationToken)
     {
         FilterDefinition<User> filter = Builders<User>.Filter.Eq(x => x.Id, userContext.UserId);
-        User user = await _context.Users.Find(filter).SingleOrDefaultAsync(cancellationToken);
+        User user = await _context.GetCollection<User>("Users").Find(filter).SingleOrDefaultAsync(cancellationToken);
         if (user == null)
         {
             return Result.Failure<EntryResponse>(UserErrors.NotFound(userContext.UserId));
@@ -35,7 +35,7 @@ internal sealed class CreateEntryCommandHandler : ICommandHandler<CreateEntryCom
             request.Tags,
             userContext.UserId);
 
-        await _context.LogEntries.InsertOneAsync(entry, cancellationToken: cancellationToken);
+        await _context.GetCollection<Entry>("Entries").InsertOneAsync(entry, cancellationToken: cancellationToken);
 
         return Result.Success<EntryResponse>(new(entry));
     }

@@ -28,4 +28,8 @@
 	<InternalsVisibleTo Include="ArchitectureTests" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Database\Mappings\" />
+  </ItemGroup>
+
 </Project>

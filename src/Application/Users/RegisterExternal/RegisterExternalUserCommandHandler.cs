@@ -41,7 +41,7 @@ internal sealed class RegisterExternalUserCommandHandler(
             Username = oAuthUserResponse.Value.Name
         };
 
-        await context.Users.InsertOneAsync(user, cancellationToken: cancellationToken);
+        await context.GetCollection<User>("Users").InsertOneAsync(user, cancellationToken: cancellationToken);
 
         await eventsDispatcher.DispatchAsync([new UserRegisteredDomainEvent(user.Id)], cancellationToken);
 
@@ -72,13 +72,13 @@ internal sealed class RegisterExternalUserCommandHandler(
             .Set(u => u.FullName, oAuthUser.Name)
             .Set(u => u.Bio, oAuthUser.Bio);
 
-        await context.Users.UpdateOneAsync(filter, update, cancellationToken: cancellationToken);
+        await context.GetCollection<User>("Users").UpdateOneAsync(filter, update, cancellationToken: cancellationToken);
     }
 
     private async Task<User> FindUserByEmailAsync(string email, CancellationToken cancellationToken)
     {
         FilterDefinition<User> filter = Builders<User>.Filter.Eq(x => x.Email, email);
-        User? maybeUser = await context.Users.Find(filter).FirstOrDefaultAsync(cancellationToken);
+        User? maybeUser = await context.GetCollection<User>("Users").Find(filter).FirstOrDefaultAsync(cancellationToken);
         return maybeUser;
     }
 }

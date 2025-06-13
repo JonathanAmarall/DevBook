@@ -41,8 +41,8 @@ internal sealed class SearchEntryQueryHandler(
         }
 
         FilterDefinition<Entry>? filter = Builders<Entry>.Filter.And(filters);
-        long totalCount = await databaseContext.LogEntries.CountDocumentsAsync(filter, cancellationToken: cancellationToken);
-        IEnumerable<SearchEntryQueryResponse> pagedData = await databaseContext.LogEntries.Find(filter)
+        long totalCount = await databaseContext.GetCollection<Entry>("Entries").CountDocumentsAsync(filter, cancellationToken: cancellationToken);
+        IEnumerable<SearchEntryQueryResponse> pagedData = await databaseContext.GetCollection<Entry>("Entries").Find(filter)
             .Skip((request.PageNumber - 1) * request.PageSize)
             .Limit(request.PageSize)
             .Project<SearchEntryQueryResponse>(Builders<Entry>.Projection

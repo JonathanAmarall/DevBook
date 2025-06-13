@@ -21,7 +21,7 @@ internal sealed class GetEntryByIdQueryHandler(
 
         FilterDefinition<Entry>? filter = Builders<Entry>.Filter.And(filters);
 
-        Entry logEntry = await databaseContext.LogEntries.Find(filter).FirstOrDefaultAsync(cancellationToken);
+        Entry logEntry = await databaseContext.GetCollection<Entry>("Entries").Find(filter).FirstOrDefaultAsync(cancellationToken);
 
         return logEntry == null
             ? Result.Failure<EntryResponse>(EntryErrors.NotFound(request.Id))

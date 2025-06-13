@@ -17,7 +17,7 @@ internal sealed class RegisterUserCommandHandler(
     public async Task<Result<string>> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
     {
         FilterDefinition<User> filter = Builders<User>.Filter.Eq(x => x.Email, command.Email);
-        if (await context.Users.Find(filter).FirstOrDefaultAsync(cancellationToken) != null)
+        if (await context.GetCollection<User>("Users").Find(filter).FirstOrDefaultAsync(cancellationToken) != null)
         {
             return Result.Failure<string>(UserErrors.EmailNotUnique);
         }
@@ -30,7 +30,7 @@ internal sealed class RegisterUserCommandHandler(
             PasswordHash = passwordHasher.Hash(command.Password)
         };
 
-        await context.Users.InsertOneAsync(user, cancellationToken: cancellationToken);
+        await context.GetCollection<User>("Users").InsertOneAsync(user, cancellationToken: cancellationToken);
 
         await eventsDispatcher.DispatchAsync([new UserRegisteredDomainEvent(user.Id)], cancellationToken);
 

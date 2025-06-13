@@ -1,0 +1,35 @@
+services:
+ 
+   mongodb-primary:
+     image: 'bitnami/mongodb@sha256:a4dc5421b115090e3612b58d03fed11749d3a5f0a7e690755f73ddaa1dd8d4c8'
+     ports:
+       - "27017:27017"
+     environment:
+       - MONGODB_ADVERTISED_HOSTNAME=mongodb-primary
+       - MONGODB_REPLICA_SET_MODE=primary
+       - MONGODB_ROOT_PASSWORD=test
+       - MONGODB_REPLICA_SET_KEY=replicasetkey123
+ 
+   mongodb-secondary:
+     image: 'bitnami/mongodb@sha256:a4dc5421b115090e3612b58d03fed11749d3a5f0a7e690755f73ddaa1dd8d4c8'
+     depends_on:
+       - mongodb-primary
+     environment:
+       - MONGODB_ADVERTISED_HOSTNAME=mongodb-secondary
+       - MONGODB_REPLICA_SET_MODE=secondary
+       - MONGODB_INITIAL_PRIMARY_HOST=mongodb-primary
+       - MONGODB_INITIAL_PRIMARY_PORT_NUMBER=27017
+       - MONGODB_INITIAL_PRIMARY_ROOT_PASSWORD=test
+       - MONGODB_REPLICA_SET_KEY=replicasetkey123
+ 
+   mongodb-arbiter:
+     image: 'bitnami/mongodb@sha256:a4dc5421b115090e3612b58d03fed11749d3a5f0a7e690755f73ddaa1dd8d4c8'
+     depends_on:
+       - mongodb-primary
+     environment:
+       - MONGODB_ADVERTISED_HOSTNAME=mongodb-arbiter
+       - MONGODB_REPLICA_SET_MODE=arbiter
+       - MONGODB_INITIAL_PRIMARY_HOST=mongodb-primary
+       - MONGODB_INITIAL_PRIMARY_PORT_NUMBER=27017
+       - MONGODB_INITIAL_PRIMARY_ROOT_PASSWORD=test
+       - MONGODB_REPLICA_SET_KEY=replicasetkey123

@@ -21,7 +21,7 @@ internal sealed class MarkEntryAsResolvedCommandHandler : ICommandHandler<MarkEn
 
     public async Task<Result<EntryResponse>> Handle(MarkEntryAsResolvedCommand request, CancellationToken cancellationToken)
     {
-        Entry? entry = await _dbContext.LogEntries
+        Entry? entry = await _dbContext.GetCollection<Entry>("Entries")
             .Find(x => x.Id == request.LogId && x.UserId == _userContext.UserId)
             .FirstOrDefaultAsync(cancellationToken);
 
@@ -32,7 +32,7 @@ internal sealed class MarkEntryAsResolvedCommandHandler : ICommandHandler<MarkEn
 
         entry.MarkAsResolved();
 
-        await _dbContext.LogEntries.ReplaceOneAsync(
+        await _dbContext.GetCollection<Entry>("Entries").ReplaceOneAsync(
             x => x.Id == entry.Id,
             entry,
             cancellationToken: cancellationToken
