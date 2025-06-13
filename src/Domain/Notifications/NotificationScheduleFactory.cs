@@ -2,7 +2,7 @@
 public static class NotificationScheduleFactory
 {
     private static readonly TimeOnly seventeenTimeToSent = new(17, 0);
-    public static NotificationSchedule CreateDefaultReminder(Notification notification, TimeOnly? timeToSent = null)
+    public static NotificationSchedule CreateDailyReminder(Notification notification, TimeOnly? timeToSent = null)
     {
         timeToSent ??= seventeenTimeToSent;
 

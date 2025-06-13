@@ -18,7 +18,7 @@ public class MongoDbContext : IDatabaseContext, IDisposable
     }
 
     public IMongoCollection<User> Users => _database.GetCollection<User>("Users");
-    public IMongoCollection<Entry> LogEntries => _database.GetCollection<Entry>("LogEntries");
+    public IMongoCollection<Entry> LogEntries => _database.GetCollection<Entry>("Entries");
     public IMongoCollection<Notification> Notifications => _database.GetCollection<Notification>("Notifications");
     public IMongoCollection<NotificationSchedule> NotificationSchedules => _database.GetCollection<NotificationSchedule>("NotificationSchedules");
 

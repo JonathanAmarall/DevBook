@@ -25,7 +25,7 @@ internal sealed class ExternalUserRegisteredDomainEventHandler : IDomainEventHan
             @event.UserId,
             NotificationType.Reminder);
 
-        NotificationSchedule schedule = NotificationScheduleFactory.CreateDefaultReminder(notification);
+        NotificationSchedule schedule = NotificationScheduleFactory.CreateDailyReminder(notification);
 
         await _databaseContext.Notifications.InsertOneAsync(
             notification,
