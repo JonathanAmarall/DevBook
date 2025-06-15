@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using AutoFixture;
 using Domain.Users;
 using MongoDB.Driver;
 using WireMock.RequestBuilders;
@@ -50,13 +51,10 @@ public abstract class IntegrationTestBase : IClassFixture<CustomWebApplicationFa
         HttpClient?.Dispose();
     }
 
-    protected User GetUser() => new()
-    {
-        Id = "xpto",
-        Email = "john.doe@mail.com",
-        FullName = "John Doe",
-        Username = "john.doe"
-    };
+    protected User GetUser() => Fixture.Build<User>()
+        .With(x => x.Id, "xpto")
+        .With(x => x.Email, "john.doe@mail.com")
+        .Create();
 
     protected void SetupGetApiMock(string path, object response, int statusCode = 200)
     {

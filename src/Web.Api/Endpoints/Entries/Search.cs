@@ -13,13 +13,14 @@ public class Search : IEndpoint
     {
         app.MapGet("/api/v1/entries",
             async (
+                ISender sender,
                 [FromQuery] string? title,
                 [FromQuery] string[]? tags,
-                [FromQuery] short? pageNumber,
-                [FromQuery] short? pageSize,
                 [FromQuery] EntryCategory? category,
                 [FromQuery] EntryStatus? status,
-                ISender sender, CancellationToken cancellationToken) =>
+                [FromQuery] short? pageNumber = 1,
+                [FromQuery] short? pageSize = 10,
+                CancellationToken cancellationToken = default) =>
             {
                 Result<PagedList<SearchEntryQueryResponse>> response =
                     await sender.Send(new SearchEntryQuery(title, category, [.. tags], status, default) { PageNumber = pageNumber, PageSize = pageSize }, cancellationToken);

@@ -44,16 +44,20 @@ internal sealed class RegisterExternalUserCommandHandler(
         }
 
         user = new User(
-            oAuthUserResponse.Value.Email,
-            oAuthUserResponse.Value.Name,
-            oAuthUserResponse.Value.AvatarUrl,
-            oAuthUserResponse.Value.Bio,
-            string.Empty);
+            email: oAuthUserResponse.Value.Email,
+            userName: oAuthUserResponse.Value.Username,
+            fullName: oAuthUserResponse.Value.Name,
+            passwordHash: string.Empty,
+            avatarUri: oAuthUserResponse.Value.AvatarUrl,
+            bio: oAuthUserResponse.Value.Bio,
+            externalId: string.Empty);
 
         await userRespository.AddAsync(user, cancellationToken: cancellationToken);
         await userRespository.UnitOfWork.CommitChangesAsync(cancellationToken);
 
-        await eventsDispatcher.DispatchAsync([new UserRegisteredDomainEvent(user.Id)], cancellationToken);
+        await eventsDispatcher.DispatchAsync(
+            domainEvents: [new UserRegisteredDomainEvent(user.Id)],
+            cancellationToken);
 
         return CreateSuccessResult(user);
     }

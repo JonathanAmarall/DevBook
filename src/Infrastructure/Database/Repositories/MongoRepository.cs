@@ -92,6 +92,8 @@ public abstract class MongoRepository<TEntity> : IRepository<TEntity> where TEnt
         short pageSize = 10,
         CancellationToken cancellationToken = default)
     {
+        Collection ??= GetCollection();
+
         IEnumerable<TProjection> pagedList = await Collection
             .Find(query)
             .Project(projection)

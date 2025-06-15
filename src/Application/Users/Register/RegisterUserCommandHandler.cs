@@ -23,13 +23,14 @@ internal sealed class RegisterUserCommandHandler(
             return Result.Failure<string>(UserErrors.EmailNotUnique);
         }
 
-        var user = new User
-        {
-            Email = command.Email,
-            Username = command.Username,
-            FullName = command.FullName,
-            PasswordHash = passwordHasher.Hash(command.Password)
-        };
+        var user = new User(
+            email: command.Email,
+            userName: command.Username,
+            fullName: command.FullName,
+            passwordHash: passwordHasher.Hash(command.Password),
+            avatarUri: null,
+            bio: null,
+            externalId: null);
 
         await userRespository.UnitOfWork.StartTransactionAsync(cancellationToken);
         await userRespository.AddAsync(user, cancellationToken: cancellationToken);

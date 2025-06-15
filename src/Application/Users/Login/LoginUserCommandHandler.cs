@@ -10,13 +10,12 @@ namespace Application.Users.Login;
 internal sealed class GithubLoginUserCommandHandler(
     IUserRepository userRespository,
     IPasswordHasher passwordHasher,
-    IUserContext userContext,
     ITokenProvider tokenProvider) : ICommandHandler<LoginUserCommand, UserResponse>
 {
     public async Task<Result<UserResponse>> Handle(LoginUserCommand command, CancellationToken cancellationToken)
     {
         User? user = await userRespository.FirstOrDefaultAsync(
-             u => u.Email == command.Email && u.Id == userContext.UserId,
+             u => u.Email == command.Email,
              cancellationToken: cancellationToken);
 
         if (user is null || user.IsExternalUser())

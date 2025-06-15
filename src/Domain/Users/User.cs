@@ -12,10 +12,12 @@ public sealed class User : Entity
     public Uri? AvatarUrl { get; private set; }
     public string? Bio { get; private set; }
 
-    public User(string email, string userName, Uri? avatarUri, string? bio, string? externalId)
+    public User(string email, string userName, string fullName, string passwordHash, Uri? avatarUri, string? bio, string? externalId)
     {
         Email = email;
         Username = userName;
+        FullName = fullName;
+        PasswordHash = passwordHash;
         AvatarUrl = avatarUri;
         Bio = bio;
         ExternalId = externalId;
