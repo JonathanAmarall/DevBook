@@ -86,6 +86,29 @@ public abstract class MongoRepository<TEntity> : IRepository<TEntity> where TEnt
         return await Collection.Find(filterDefinition).ToListAsync(cancellationToken);
     }
 
+    public async Task<PagedList<TProjection>> PagedListAsync<TProjection>(
+        Expression<Func<TEntity, bool>> query,
+        Expression<Func<TEntity, TProjection>> projection,
+        short pageNumber = 1,
+        short pageSize = 10,
+        CancellationToken cancellationToken = default)
+    {
+        IEnumerable<TProjection> pagedList = await Collection
+            .Find(query)
+            .Project(projection)
+            .Skip((pageNumber - 1) * pageSize)
+            .Limit(pageSize)
+            .SortByDescending(x => x.CreatedOnUtc)
+            .ToListAsync(cancellationToken);
+
+        return new PagedList<TProjection>(
+            pagedList,
+            pageNumber,
+            pageSize,
+            await Collection.CountDocumentsAsync(query, cancellationToken: cancellationToken)
+        );
+    }
+
     public async IAsyncEnumerable<TProjection> ChunckAsync<TProjection>(Expression<Func<TEntity, bool>> query,
         Expression<Func<TEntity, TProjection>> projection,
         [EnumeratorCancellation] CancellationToken cancellationToken = default)

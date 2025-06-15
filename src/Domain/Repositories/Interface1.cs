@@ -17,7 +17,7 @@ public interface IUserRespository : IRepository<User>
 {
 }
 
-public interface IEntryRespository : IRepository<Entry>
+public interface IEntryRepository : IRepository<Entry>
 {
     Task<long> CountDocumentsAsync(Expression<Func<Entry, bool>> query, CancellationToken cancellationToken);
 }

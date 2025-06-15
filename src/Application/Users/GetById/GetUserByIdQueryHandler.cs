@@ -1,15 +1,15 @@
 ﻿using Application.Abstractions.Authentication;
-using Application.Abstractions.Data;
 using Application.Abstractions.Messaging;
 using Application.Users.Common;
+using Domain.Repositories;
 using Domain.Users;
-using Microsoft.EntityFrameworkCore;
-using MongoDB.Driver;
 using SharedKernel;
 
 namespace Application.Users.GetById;
 
-internal sealed class GetUserByIdQueryHandler(IDatabaseContext context, IUserContext userContext)
+internal sealed class GetUserByIdQueryHandler(
+    IUserRespository userRespository,
+    IUserContext userContext)
     : IQueryHandler<GetUserByIdQuery, UserResponse>
 {
     public async Task<Result<UserResponse>> Handle(GetUserByIdQuery query, CancellationToken cancellationToken)
@@ -19,8 +19,9 @@ internal sealed class GetUserByIdQueryHandler(IDatabaseContext context, IUserCon
             return Result.Failure<UserResponse>(UserErrors.Unauthorized());
         }
 
-        User? user = await context.GetCollection<User>("Users").Find(x => x.Id == query.UserId)
-            .SingleOrDefaultAsync(cancellationToken);
+        User? user = await userRespository.FirstOrDefaultAsync(
+            u => u.Id == userContext.UserId,
+            cancellationToken: cancellationToken);
 
         if (user is null)
         {

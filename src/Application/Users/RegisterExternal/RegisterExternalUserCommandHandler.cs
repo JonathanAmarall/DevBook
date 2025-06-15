@@ -1,17 +1,15 @@
 ﻿using Application.Abstractions.Authentication;
-using Application.Abstractions.Data;
 using Application.Abstractions.Messaging;
 using Application.Users.Common;
+using Domain.Repositories;
 using Domain.Users;
-using Microsoft.EntityFrameworkCore;
-using MongoDB.Driver;
 using SharedKernel;
 using UserResponse = Application.Users.Common.UserResponse;
 
 namespace Application.Users.RegisterExternal;
 
 internal sealed class RegisterExternalUserCommandHandler(
-    IDatabaseContext context,
+    IUserRespository userRespository,
     ITokenProvider tokenProvider,
     IOAuthProvider oAuthProvider,
     IDomainEventsDispatcher eventsDispatcher) : ICommandHandler<RegisterExternalUserCommand, UserResponse>
@@ -26,22 +24,34 @@ internal sealed class RegisterExternalUserCommandHandler(
             return Result.Failure<UserResponse>(oAuthUserResponse.Error);
         }
 
-        User checkUser = await FindUserByEmailAsync(oAuthUserResponse.Value!.Email, cancellationToken);
-        if (checkUser != null)
+        User? user = await userRespository.FirstOrDefaultAsync(
+            u => u.Email == oAuthUserResponse.Value!.Email && u.IsExternalUser(),
+            cancellationToken: cancellationToken);
+
+        await userRespository.UnitOfWork.StartTransactionAsync(cancellationToken);
+
+        if (user is not null)
         {
-            await UpdateUserAsync(oAuthUserResponse.Value!, checkUser, cancellationToken);
-            return CreateSuccessResult(checkUser);
+            user.UpdateMetadata(
+                avatarUrl: oAuthUserResponse.Value.AvatarUrl,
+                name: oAuthUserResponse.Value.Name,
+                bio: oAuthUserResponse.Value.Bio);
+
+            await userRespository.AddAsync(user, cancellationToken: cancellationToken);
+            await userRespository.UnitOfWork.CommitChangesAsync(cancellationToken);
+
+            return CreateSuccessResult(user);
         }
 
-        var user = new User()
-        {
-            Email = oAuthUserResponse.Value.Email,
-            AvatarUrl = oAuthUserResponse.Value.AvatarUrl,
-            Bio = oAuthUserResponse.Value.Bio,
-            Username = oAuthUserResponse.Value.Name
-        };
+        user = new User(
+            oAuthUserResponse.Value.Email,
+            oAuthUserResponse.Value.Name,
+            oAuthUserResponse.Value.AvatarUrl,
+            oAuthUserResponse.Value.Bio,
+            string.Empty);
 
-        await context.GetCollection<User>("Users").InsertOneAsync(user, cancellationToken: cancellationToken);
+        await userRespository.AddAsync(user, cancellationToken: cancellationToken);
+        await userRespository.UnitOfWork.CommitChangesAsync(cancellationToken);
 
         await eventsDispatcher.DispatchAsync([new UserRegisteredDomainEvent(user.Id)], cancellationToken);
 
@@ -62,23 +72,5 @@ internal sealed class RegisterExternalUserCommandHandler(
             FullName = user.FullName,
             Token = new Token(token)
         });
-    }
-
-    private async Task UpdateUserAsync(OAuthUserResponse oAuthUser, User checkUser, CancellationToken cancellationToken)
-    {
-        FilterDefinition<User> filter = Builders<User>.Filter.Eq(u => u.Id, checkUser.Id);
-        UpdateDefinition<User> update = Builders<User>.Update
-            .Set(u => u.AvatarUrl, oAuthUser.AvatarUrl)
-            .Set(u => u.FullName, oAuthUser.Name)
-            .Set(u => u.Bio, oAuthUser.Bio);
-
-        await context.GetCollection<User>("Users").UpdateOneAsync(filter, update, cancellationToken: cancellationToken);
-    }
-
-    private async Task<User> FindUserByEmailAsync(string email, CancellationToken cancellationToken)
-    {
-        FilterDefinition<User> filter = Builders<User>.Filter.Eq(x => x.Email, email);
-        User? maybeUser = await context.GetCollection<User>("Users").Find(filter).FirstOrDefaultAsync(cancellationToken);
-        return maybeUser;
     }
 }

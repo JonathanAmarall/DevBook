@@ -25,4 +25,5 @@ public interface IRepository<TEntity> where TEntity : Entity
 
     IAsyncEnumerable<TProjection> ChunckAsync<TProjection>(Expression<Func<TEntity, bool>> query,
         Expression<Func<TEntity, TProjection>> projection, CancellationToken cancellationToken = default);
+    Task<PagedList<TProjection>> PagedListAsync<TProjection>(Expression<Func<TEntity, bool>> query, Expression<Func<TEntity, TProjection>> projection, short pageNumber = 1, short pageSize = 10, CancellationToken cancellationToken = default);
 }

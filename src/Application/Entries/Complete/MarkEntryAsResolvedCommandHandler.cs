@@ -1,29 +1,28 @@
 ﻿using Application.Abstractions.Authentication;
-using Application.Abstractions.Data;
 using Application.Abstractions.Messaging;
 using Application.Entries.GetById;
 using Domain.Entries;
-using MongoDB.Driver;
+using Domain.Repositories;
 using SharedKernel;
 
 namespace Application.Entries.Complete;
 
 internal sealed class MarkEntryAsResolvedCommandHandler : ICommandHandler<MarkEntryAsResolvedCommand, EntryResponse>
 {
-    private readonly IDatabaseContext _dbContext;
     private readonly IUserContext _userContext;
+    private readonly IEntryRepository _entryRespository;
 
-    public MarkEntryAsResolvedCommandHandler(IDatabaseContext dbContext, IUserContext userContext)
+    public MarkEntryAsResolvedCommandHandler(IUserContext userContext, IEntryRepository entryRespository)
     {
-        _dbContext = dbContext;
         _userContext = userContext;
+        _entryRespository = entryRespository;
     }
 
     public async Task<Result<EntryResponse>> Handle(MarkEntryAsResolvedCommand request, CancellationToken cancellationToken)
     {
-        Entry? entry = await _dbContext.GetCollection<Entry>("Entries")
-            .Find(x => x.Id == request.LogId && x.UserId == _userContext.UserId)
-            .FirstOrDefaultAsync(cancellationToken);
+        Entry? entry = await _entryRespository.FirstOrDefaultAsync(x =>
+            x.Id == request.LogId &&
+            x.UserId == _userContext.UserId, cancellationToken);
 
         if (entry is null)
         {
@@ -32,11 +31,9 @@ internal sealed class MarkEntryAsResolvedCommandHandler : ICommandHandler<MarkEn
 
         entry.MarkAsResolved();
 
-        await _dbContext.GetCollection<Entry>("Entries").ReplaceOneAsync(
-            x => x.Id == entry.Id,
-            entry,
-            cancellationToken: cancellationToken
-        );
+        await _entryRespository.UnitOfWork.StartTransactionAsync(cancellationToken);
+        await _entryRespository.AddAsync(entry, cancellationToken: cancellationToken);
+        await _entryRespository.UnitOfWork.CommitChangesAsync(cancellationToken);
 
         return Result.Success<EntryResponse>(new(entry));
     }

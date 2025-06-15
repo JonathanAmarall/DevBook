@@ -25,7 +25,7 @@ internal sealed class ExternalUserRegisteredDomainEventHandler : IDomainEventHan
     {
         Notification notification = new(
             "Está na hora de adicionar uma nova entrada no seu diário!",
-            "ReminderToAddEntry.",
+            "ReminderToAddEntry",
             @event.UserId,
             NotificationType.Reminder);
 

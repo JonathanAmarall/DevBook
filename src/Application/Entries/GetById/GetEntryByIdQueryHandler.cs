@@ -1,30 +1,23 @@
 ﻿using Application.Abstractions.Authentication;
-using Application.Abstractions.Data;
 using Application.Abstractions.Messaging;
 using Domain.Entries;
-using MongoDB.Driver;
+using Domain.Repositories;
 using SharedKernel;
 
 namespace Application.Entries.GetById;
 
 internal sealed class GetEntryByIdQueryHandler(
-    IDatabaseContext databaseContext,
+    IEntryRepository entryRepository,
     IUserContext userContext) : IQueryHandler<GetEntryByIdQuery, EntryResponse>
 {
     public async Task<Result<EntryResponse>> Handle(GetEntryByIdQuery request, CancellationToken cancellationToken)
     {
-        var filters = new List<FilterDefinition<Entry>>
-        {
-            Builders<Entry>.Filter.Eq(x => x.Id, request.Id),
-            Builders<Entry>.Filter.Eq(x => x.UserId, userContext.UserId)
-        };
+        Entry? entry = await entryRepository.FirstOrDefaultAsync(
+            x => x.Id == request.Id && x.UserId == userContext.UserId,
+            cancellationToken: cancellationToken);
 
-        FilterDefinition<Entry>? filter = Builders<Entry>.Filter.And(filters);
-
-        Entry logEntry = await databaseContext.GetCollection<Entry>("Entries").Find(filter).FirstOrDefaultAsync(cancellationToken);
-
-        return logEntry == null
+        return entry is null
             ? Result.Failure<EntryResponse>(EntryErrors.NotFound(request.Id))
-            : new EntryResponse(logEntry);
+            : new EntryResponse(entry);
     }
 }

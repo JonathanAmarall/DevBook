@@ -1,23 +1,23 @@
 ﻿using Application.Abstractions.Authentication;
-using Application.Abstractions.Data;
 using Application.Abstractions.Messaging;
 using Application.Users.Common;
+using Domain.Repositories;
 using Domain.Users;
-using Microsoft.EntityFrameworkCore;
-using MongoDB.Driver;
 using SharedKernel;
 
 namespace Application.Users.Login;
 
 internal sealed class GithubLoginUserCommandHandler(
-    IDatabaseContext context,
+    IUserRespository userRespository,
     IPasswordHasher passwordHasher,
+    IUserContext userContext,
     ITokenProvider tokenProvider) : ICommandHandler<LoginUserCommand, UserResponse>
 {
     public async Task<Result<UserResponse>> Handle(LoginUserCommand command, CancellationToken cancellationToken)
     {
-        User? user = await context.GetCollection<User>("Users").Find(x => x.Email == command.Email)
-            .SingleOrDefaultAsync(cancellationToken);
+        User? user = await userRespository.FirstOrDefaultAsync(
+             u => u.Email == command.Email && u.Id == userContext.UserId,
+             cancellationToken: cancellationToken);
 
         if (user is null || user.IsExternalUser())
         {
@@ -25,7 +25,6 @@ internal sealed class GithubLoginUserCommandHandler(
         }
 
         bool verified = passwordHasher.Verify(command.Password, user.PasswordHash);
-
         if (!verified)
         {
             return Result.Failure<UserResponse>(UserErrors.NotFoundByEmail);

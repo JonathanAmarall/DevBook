@@ -1,31 +1,22 @@
 ﻿using Application.Abstractions.Authentication;
-using Application.Abstractions.Data;
 using Application.Abstractions.Messaging;
 using Application.Users.Common;
+using Domain.Repositories;
 using Domain.Users;
-using Microsoft.EntityFrameworkCore;
-using MongoDB.Driver;
 using SharedKernel;
 
 namespace Application.Users.GetByEmail;
 
-internal sealed class GetUserByEmailQueryHandler(IDatabaseContext context, IUserContext userContext)
+internal sealed class GetUserByEmailQueryHandler(
+    IUserRespository userRespository,
+    IUserContext userContext)
     : IQueryHandler<GetUserByEmailQuery, UserResponse>
 {
     public async Task<Result<UserResponse>> Handle(GetUserByEmailQuery query, CancellationToken cancellationToken)
     {
-        UserResponse? user = await context.GetCollection<User>("Users").AsQueryable()
-            .Where(u => u.Email == query.Email)
-            .Select(user => new UserResponse
-            {
-                Id = user.Id,
-                AvatarUrl = user.AvatarUrl,
-                Bio = user.Bio,
-                Email = user.Email,
-                Username = user.Username,
-                FullName = user.FullName
-            })
-            .SingleOrDefaultAsync(cancellationToken);
+        User? user = await userRespository.FirstOrDefaultAsync(
+            u => u.Email == query.Email && u.Id == userContext.UserId,
+            cancellationToken: cancellationToken);
 
         if (user is null)
         {
@@ -37,6 +28,14 @@ internal sealed class GetUserByEmailQueryHandler(IDatabaseContext context, IUser
             return Result.Failure<UserResponse>(UserErrors.Unauthorized());
         }
 
-        return user;
+        return new UserResponse
+        {
+            Id = user.Id,
+            AvatarUrl = user.AvatarUrl,
+            Bio = user.Bio,
+            Email = user.Email,
+            Username = user.Username,
+            FullName = user.FullName
+        };
     }
 }

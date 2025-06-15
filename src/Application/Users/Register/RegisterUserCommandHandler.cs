@@ -1,23 +1,24 @@
 ﻿using Application.Abstractions.Authentication;
-using Application.Abstractions.Data;
 using Application.Abstractions.Messaging;
+using Domain.Repositories;
 using Domain.Users;
-using Microsoft.EntityFrameworkCore;
-using MongoDB.Driver;
 using SharedKernel;
 
 namespace Application.Users.Register;
 
 internal sealed class RegisterUserCommandHandler(
-    IDatabaseContext context,
+    IUserRespository userRespository,
     IPasswordHasher passwordHasher,
     IDomainEventsDispatcher eventsDispatcher)
     : ICommandHandler<RegisterUserCommand, string>
 {
     public async Task<Result<string>> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
     {
-        FilterDefinition<User> filter = Builders<User>.Filter.Eq(x => x.Email, command.Email);
-        if (await context.GetCollection<User>("Users").Find(filter).FirstOrDefaultAsync(cancellationToken) != null)
+        User? existingUser = await userRespository.FirstOrDefaultAsync(
+            u => u.Email == command.Email || u.Username == command.Username,
+            cancellationToken: cancellationToken);
+
+        if (existingUser is not null)
         {
             return Result.Failure<string>(UserErrors.EmailNotUnique);
         }
@@ -30,7 +31,9 @@ internal sealed class RegisterUserCommandHandler(
             PasswordHash = passwordHasher.Hash(command.Password)
         };
 
-        await context.GetCollection<User>("Users").InsertOneAsync(user, cancellationToken: cancellationToken);
+        await userRespository.UnitOfWork.StartTransactionAsync(cancellationToken);
+        await userRespository.AddAsync(user, cancellationToken: cancellationToken);
+        await userRespository.UnitOfWork.CommitChangesAsync(cancellationToken);
 
         await eventsDispatcher.DispatchAsync([new UserRegisteredDomainEvent(user.Id)], cancellationToken);
 
