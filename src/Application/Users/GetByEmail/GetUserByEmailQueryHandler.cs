@@ -8,7 +8,7 @@ using SharedKernel;
 namespace Application.Users.GetByEmail;
 
 internal sealed class GetUserByEmailQueryHandler(
-    IUserRespository userRespository,
+    IUserRepository userRespository,
     IUserContext userContext)
     : IQueryHandler<GetUserByEmailQuery, UserResponse>
 {

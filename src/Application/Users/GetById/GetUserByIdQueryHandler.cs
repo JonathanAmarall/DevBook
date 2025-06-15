@@ -8,7 +8,7 @@ using SharedKernel;
 namespace Application.Users.GetById;
 
 internal sealed class GetUserByIdQueryHandler(
-    IUserRespository userRespository,
+    IUserRepository userRespository,
     IUserContext userContext)
     : IQueryHandler<GetUserByIdQuery, UserResponse>
 {

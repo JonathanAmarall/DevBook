@@ -7,7 +7,7 @@ using SharedKernel;
 namespace Application.Users.Register;
 
 internal sealed class RegisterUserCommandHandler(
-    IUserRespository userRespository,
+    IUserRepository userRespository,
     IPasswordHasher passwordHasher,
     IDomainEventsDispatcher eventsDispatcher)
     : ICommandHandler<RegisterUserCommand, string>

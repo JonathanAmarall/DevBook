@@ -12,9 +12,9 @@ internal sealed class CreateEntryCommandHandler : ICommandHandler<CreateEntryCom
 {
     private readonly IUserContext userContext;
     private readonly IEntryRepository _entryRepository;
-    private readonly IUserRespository _userRespository;
+    private readonly IUserRepository _userRespository;
 
-    public CreateEntryCommandHandler(IUserContext userContext, IEntryRepository entryRepository, IUserRespository userRespository)
+    public CreateEntryCommandHandler(IUserContext userContext, IEntryRepository entryRepository, IUserRepository userRespository)
     {
         this.userContext = userContext;
         _entryRepository = entryRepository;

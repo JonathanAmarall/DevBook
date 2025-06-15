@@ -1,7 +1,6 @@
 ﻿using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using Application.Abstractions.Data;
-using Domain.Notifications;
 using Domain.Repositories;
 using MongoDB.Driver;
 using SharedKernel;
@@ -158,26 +157,4 @@ public abstract class MongoRepository<TEntity> : IRepository<TEntity> where TEnt
     }
 
     #endregion
-}
-
-public sealed class NotificationRepository : MongoRepository<Notification>, INotificationRespository
-{
-    public const string CollectionName = "Notifications";
-
-    public NotificationRepository(IDatabaseContext context, IUnitOfWork unitOfWork) : base(context, unitOfWork)
-    {
-    }
-
-    protected override string GetCollectionName() => CollectionName;
-}
-
-public sealed class NotificationScheduleRepository : MongoRepository<NotificationSchedule>, INotificationScheduleRespository
-{
-    public const string CollectionName = "NotificationSchedules";
-
-    public NotificationScheduleRepository(IDatabaseContext context, IUnitOfWork unitOfWork) : base(context, unitOfWork)
-    {
-    }
-
-    protected override string GetCollectionName() => CollectionName;
 }

@@ -9,7 +9,7 @@ using UserResponse = Application.Users.Common.UserResponse;
 namespace Application.Users.RegisterExternal;
 
 internal sealed class RegisterExternalUserCommandHandler(
-    IUserRespository userRespository,
+    IUserRepository userRespository,
     ITokenProvider tokenProvider,
     IOAuthProvider oAuthProvider,
     IDomainEventsDispatcher eventsDispatcher) : ICommandHandler<RegisterExternalUserCommand, UserResponse>

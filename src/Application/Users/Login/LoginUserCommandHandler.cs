@@ -8,7 +8,7 @@ using SharedKernel;
 namespace Application.Users.Login;
 
 internal sealed class GithubLoginUserCommandHandler(
-    IUserRespository userRespository,
+    IUserRepository userRespository,
     IPasswordHasher passwordHasher,
     IUserContext userContext,
     ITokenProvider tokenProvider) : ICommandHandler<LoginUserCommand, UserResponse>
