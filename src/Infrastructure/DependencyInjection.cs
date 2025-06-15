@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Text;
+using System.Text.Json;
 using Application;
 using Application.Abstractions.Authentication;
 using Application.Abstractions.Data;
@@ -70,7 +71,10 @@ public static class DependencyInjection
 
         services.AddRefitClient<IGithubApi>(new RefitSettings
         {
-            ContentSerializer = new SystemTextJsonContentSerializer()
+            ContentSerializer = new SystemTextJsonContentSerializer(new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
+            })
         }).ConfigureHttpClient(c =>
         {
             c.BaseAddress = new Uri(configuration["GithubApiSettings:BaseAddress"]!);

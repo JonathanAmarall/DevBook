@@ -25,7 +25,7 @@ internal sealed class RegisterExternalUserCommandHandler(
         }
 
         User? user = await userRespository.FirstOrDefaultAsync(
-            u => u.Email == oAuthUserResponse.Value!.Email && u.IsExternalUser(),
+            u => u.Email == oAuthUserResponse.Value!.Email,
             cancellationToken: cancellationToken);
 
         await userRespository.UnitOfWork.StartTransactionAsync(cancellationToken);
