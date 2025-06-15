@@ -4,7 +4,6 @@ using HealthChecks.UI.Client;
 using Infrastructure;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Serilog;
-using SilkierQuartz;
 using Web.Api;
 using Web.Api.Extensions;
 
@@ -21,27 +20,12 @@ builder.Services.AddCors(options
 builder.Host.UseSerilog((context, loggerConfig) =>
     loggerConfig.ReadFrom.Configuration(context.Configuration));
 
-builder.Services.AddSwaggerGenWithAuth();
-
-builder.Services.AddSilkierQuartz(options =>
-{
-    options.VirtualPathRoot = "/quartz";
-    options.UseLocalTime = true;
-    options.CronExpressionOptions = new CronExpressionDescriptor.Options()
-    {
-        DayOfWeekStartIndexZero = false //Quartz uses 1-7 as the range
-    };
-    options.EnableEdit = false;
-}, configureAuthenticationOptions: authenticationOptions
-    => authenticationOptions.AccessRequirement = SilkierQuartzAuthenticationOptions.SimpleAccessRequirement.AllowAnonymous);
-
+builder.Services.AddEndpoints(Assembly.GetExecutingAssembly());
 
 builder.Services
     .AddApplication(builder.Configuration)
     .AddPresentation()
     .AddInfrastructure(builder.Configuration);
-
-builder.Services.AddEndpoints(Assembly.GetExecutingAssembly());
 
 WebApplication app = builder.Build();
 
@@ -72,7 +56,6 @@ app.UseAuthorization();
 app.UseSilkierQuartz();
 
 app.MapEndpoints();
-
 
 await app.RunAsync();
 

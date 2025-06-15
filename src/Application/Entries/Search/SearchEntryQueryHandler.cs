@@ -13,7 +13,7 @@ internal sealed class SearchEntryQueryHandler(
     {
         PagedList<SearchEntryQueryResponse> pagedEntries = await entryRepository.PagedListAsync(
             x => x.UserId == userContext.UserId &&
-                 (string.IsNullOrWhiteSpace(request.Title) || x.Title.Contains(request.Title, StringComparison.OrdinalIgnoreCase)) &&
+                 (string.IsNullOrWhiteSpace(request.Title) || x.Title.Contains(request.Title)) &&
                  (!request.Category.HasValue || x.Category == request.Category) &&
                  (!request.Status.HasValue || x.Status == request.Status),
             p => new SearchEntryQueryResponse
