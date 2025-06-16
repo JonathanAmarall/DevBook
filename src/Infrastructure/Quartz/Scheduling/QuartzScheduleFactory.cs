@@ -6,11 +6,12 @@ using Quartz;
 namespace Infrastructure.Quartz.Scheduling;
 public static class QuartzScheduleFactory
 {
+    public const string NotificationKey = "NotificationId";
     public static (IJobDetail job, ITrigger trigger) CreateJobFromNotificationSchedule(NotificationSchedule schedule)
     {
         IJobDetail job = JobBuilder.Create<SendNotificationJob>()
             .WithIdentity($"notification-{schedule.NotificationId}")
-            .UsingJobData("NotificationId", schedule.NotificationId.ToString())
+            .UsingJobData(NotificationKey, schedule.NotificationId.ToString())
             .Build();
 
         TriggerBuilder triggerBuilder = TriggerBuilder.Create()

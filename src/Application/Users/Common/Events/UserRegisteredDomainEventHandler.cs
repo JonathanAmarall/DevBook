@@ -45,6 +45,6 @@ internal sealed class ExternalUserRegisteredDomainEventHandler : IDomainEventHan
 
         await _unitOfWork.CommitChangesAsync(cancellationToken);
 
-        await _notificationScheduler.ScheduleAsync(schedule);
+        await _notificationScheduler.ScheduleAsync(schedule, cancellationToken);
     }
 }
