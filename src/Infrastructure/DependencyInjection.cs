@@ -114,8 +114,8 @@ public static class DependencyInjection
         services.AddRepositoryMappings(Assembly.GetCallingAssembly());
         services.AddRepositoryInitializers(Assembly.GetCallingAssembly());
 
-        services.AddScoped<INotificationRespository, NotificationRepository>();
-        services.AddScoped<INotificationScheduleRespository, NotificationScheduleRepository>();
+        services.AddScoped<INotificationRepository, NotificationRepository>();
+        services.AddScoped<INotificationScheduleRepository, NotificationScheduleRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IEntryRepository, EntryRepository>();
         services.AddScoped<INotificationDeliveryRepository, NotificationDeliveryRepository>();
@@ -173,9 +173,10 @@ public static class DependencyInjection
 
     private static IServiceCollection AddBackgroundJobs(this IServiceCollection services)
     {
+        services.AddQuartz();
+
         services.AddQuartzHostedService(opt => opt.WaitForJobsToComplete = true);
 
-        services.AddQuartz();
 
         services.AddScoped<INotificationScheduler, NotificationScheduler>();
 

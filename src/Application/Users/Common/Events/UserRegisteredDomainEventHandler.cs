@@ -10,10 +10,10 @@ internal sealed class ExternalUserRegisteredDomainEventHandler : IDomainEventHan
 {
     private readonly INotificationScheduler _notificationScheduler;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly INotificationRespository _notificationRepository;
-    private readonly INotificationScheduleRespository _notificationScheduleRepository;
+    private readonly INotificationRepository _notificationRepository;
+    private readonly INotificationScheduleRepository _notificationScheduleRepository;
 
-    public ExternalUserRegisteredDomainEventHandler(INotificationScheduler notificationScheduler, INotificationRespository notificationRepository, INotificationScheduleRespository notificationScheduleRepository, IUnitOfWork unitOfWork)
+    public ExternalUserRegisteredDomainEventHandler(INotificationScheduler notificationScheduler, INotificationRepository notificationRepository, INotificationScheduleRepository notificationScheduleRepository, IUnitOfWork unitOfWork)
     {
         _notificationScheduler = notificationScheduler;
         _notificationRepository = notificationRepository;
@@ -29,7 +29,9 @@ internal sealed class ExternalUserRegisteredDomainEventHandler : IDomainEventHan
             @event.UserId,
             NotificationType.Reminder);
 
-        NotificationSchedule schedule = NotificationScheduleFactory.CreateDailyReminder(notification);
+        var timeToSent = TimeOnly.FromDateTime(DateTime.Now.AddMinutes(1));
+
+        NotificationSchedule schedule = NotificationScheduleFactory.CreateDailyReminder(notification, timeToSent);
 
         await _unitOfWork.StartTransactionAsync(cancellationToken);
 

@@ -4,18 +4,35 @@ namespace Domain.Notifications;
 
 public sealed class NotificationDelivery : Entity
 {
-    public string NotificationId { get; set; }
-    public string RecipientId { get; set; }
-    public NotificationChannel Channel { get; set; }
-    public DateTime SentOnUtc { get; set; }
-    public bool IsRead { get; set; }
-    public DateTime? ReadOnUtc { get; set; }
-    public NotificationStatus Status { get; set; }
-    public string? ErrorMessage { get; set; }
+    public NotificationDelivery(string notificationId, string recipientId, NotificationChannel channel, string preview)
+    {
+        NotificationId = notificationId;
+        RecipientId = recipientId;
+        Channel = channel;
+        Preview = preview;
+        IsRead = false;
+    }
+
+    public string NotificationId { get; private set; }
+    public string RecipientId { get; private set; }
+    public NotificationChannel Channel { get; private set; }
+    public DateTime? SentOnUtc { get; private set; }
+    public bool IsRead { get; private set; }
+    public DateTime? ReadOnUtc { get; private set; }
+    public NotificationStatus Status { get; private set; }
+    public string? ErrorMessage { get; private set; }
+    public string Preview { get; private set; }
+
+    public void SetErrorMessage(string error)
+    {
+        ErrorMessage = error;
+    }
 
     public Result MarkAsSent()
     {
+        Status = NotificationStatus.Sent;
         SentOnUtc = DateTime.UtcNow;
+
         return Result.Success();
     }
 

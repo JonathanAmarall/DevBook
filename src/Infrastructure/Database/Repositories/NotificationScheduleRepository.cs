@@ -4,7 +4,7 @@ using Domain.Repositories;
 
 namespace Infrastructure.Database.Repositories;
 
-public sealed class NotificationScheduleRepository : MongoRepository<NotificationSchedule>, INotificationScheduleRespository
+public sealed class NotificationScheduleRepository : MongoRepository<NotificationSchedule>, INotificationScheduleRepository
 {
     public const string CollectionName = "NotificationSchedules";
 

@@ -15,7 +15,7 @@ internal sealed class RegisterUserCommandHandler(
     public async Task<Result<string>> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
     {
         User? existingUser = await userRespository.FirstOrDefaultAsync(
-            u => u.Email == command.Email || u.Username == command.Username,
+            u => u.Email == command.Email,
             cancellationToken: cancellationToken);
 
         if (existingUser is not null)

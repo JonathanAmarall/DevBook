@@ -24,7 +24,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Notifications\Search\" />
     <Folder Include="Notifications\MarkAsRead\" />
   </ItemGroup>
 
