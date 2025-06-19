@@ -14,9 +14,9 @@ internal sealed class GetNotificationsQueryHandler(
     {
         PagedList<NotificationResponse> notifications = await deliveryRepository.PagedListAsync(
             n => n.RecipientId == userContext.UserId && n.SentOnUtc != null,
-            n => new NotificationResponse(n.NotificationId, n.SentOnUtc, n.IsRead, n.ReadOnUtc, n.Status.ToString(), n.Preview),
-            pageNumber: request.PageNumber,
-            pageSize: request.PageSize,
+            n => new NotificationResponse(n.Id, n.SentOnUtc, n.IsRead, n.ReadOnUtc, n.Status.ToString(), n.Preview),
+            pageNumber: request.PageNumber.GetValueOrDefault(),
+            pageSize: request.PageSize.GetValueOrDefault(),
             cancellationToken: cancellationToken);
 
         return notifications;

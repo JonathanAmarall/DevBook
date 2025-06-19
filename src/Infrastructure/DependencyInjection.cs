@@ -33,7 +33,7 @@ using SharedKernel;
 
 namespace Infrastructure;
 
-public static class DependencyInjection
+public static partial class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(
         this IServiceCollection services,
@@ -46,7 +46,8 @@ public static class DependencyInjection
             .AddGithubOAuthProvider()
             .AddAuthorizationInternal()
             .AddTextSummaryGenerator()
-            .AddBackgroundJobs();
+            .AddBackgroundJobs()
+            .AddRedisCache(configuration);
 
     private static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
     {
@@ -177,7 +178,6 @@ public static class DependencyInjection
 
         services.AddQuartzHostedService(opt => opt.WaitForJobsToComplete = true);
 
-
         services.AddScoped<INotificationScheduler, NotificationScheduler>();
 
         return services;
@@ -204,26 +204,16 @@ public static class DependencyInjection
             initializer.InitializeAsync().Wait();
         }
     }
-}
 
-internal static class MongoDbMappings
-{
-    public static void RegisterMappings(Assembly assembly)
+
+    public static IServiceCollection AddRedisCache(this IServiceCollection services, IConfiguration configuration)
     {
-        IEnumerable<Type> mappingTypes = assembly.GetTypes()
-                            .Where(t => t.IsClass && !t.IsAbstract && typeof(IMappingConfigurationEntity).IsAssignableFrom(t));
-
-        foreach (Type mappingType in mappingTypes)
+        services.AddStackExchangeRedisCache(options =>
         {
-            object? mappingInstance = Activator.CreateInstance(mappingType);
-            MethodInfo? configureMethod = mappingType.GetMethod("Configure");
-            configureMethod!.Invoke(mappingInstance, null);
-        }
-    }
-}
+            options.Configuration = configuration.GetConnectionString("Redis");
+            options.InstanceName = "MyApp:"; // Prefixo opcional para as chaves
+        });
 
-public interface IMappingConfigurationEntity
-{
-    Task InitializeAsync();
-    public void Configure();
+        return services;
+    }
 }

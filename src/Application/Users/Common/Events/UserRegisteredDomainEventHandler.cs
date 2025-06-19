@@ -6,14 +6,14 @@ using SharedKernel;
 
 namespace Application.Users.Common.Events;
 
-internal sealed class ExternalUserRegisteredDomainEventHandler : IDomainEventHandler<UserRegisteredDomainEvent>
+internal sealed class UserRegisteredDomainEventHandler : IDomainEventHandler<UserRegisteredDomainEvent>
 {
     private readonly INotificationScheduler _notificationScheduler;
     private readonly IUnitOfWork _unitOfWork;
     private readonly INotificationRepository _notificationRepository;
     private readonly INotificationScheduleRepository _notificationScheduleRepository;
 
-    public ExternalUserRegisteredDomainEventHandler(INotificationScheduler notificationScheduler, INotificationRepository notificationRepository, INotificationScheduleRepository notificationScheduleRepository, IUnitOfWork unitOfWork)
+    public UserRegisteredDomainEventHandler(INotificationScheduler notificationScheduler, INotificationRepository notificationRepository, INotificationScheduleRepository notificationScheduleRepository, IUnitOfWork unitOfWork)
     {
         _notificationScheduler = notificationScheduler;
         _notificationRepository = notificationRepository;
@@ -47,6 +47,6 @@ internal sealed class ExternalUserRegisteredDomainEventHandler : IDomainEventHan
 
         await _unitOfWork.CommitChangesAsync(cancellationToken);
 
-        await _notificationScheduler.ScheduleAsync(schedule, cancellationToken);
+        await _notificationScheduler.ScheduleAsync(schedule);
     }
 }

@@ -53,8 +53,6 @@ app.UseRouting();
 
 app.UseAuthorization();
 
-app.UseSilkierQuartz();
-
 app.MapEndpoints();
 
 await app.RunAsync();

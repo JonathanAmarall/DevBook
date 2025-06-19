@@ -1,6 +1,5 @@
 ﻿using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http.Json;
-using SilkierQuartz;
 using Web.Api.Extensions;
 using Web.Api.Infrastructure;
 
@@ -15,18 +14,6 @@ public static class DependencyInjection
 
         services.AddSwaggerGenWithAuth();
 
-        services.AddSilkierQuartz(options =>
-        {
-            options.VirtualPathRoot = "/quartz";
-            options.UseLocalTime = true;
-            options.CronExpressionOptions = new CronExpressionDescriptor.Options()
-            {
-                DayOfWeekStartIndexZero = false //Quartz uses 1-7 as the range
-            };
-            options.EnableEdit = false;
-        }, configureAuthenticationOptions: authenticationOptions
-            => authenticationOptions.AccessRequirement = SilkierQuartzAuthenticationOptions.SimpleAccessRequirement.AllowAnonymous);
-
         // REMARK: If you want to use Controllers, you'll need this.
         services.AddControllers();
 
@@ -36,6 +23,8 @@ public static class DependencyInjection
         services.AddExceptionHandler<GlobalExceptionHandler>();
 
         services.AddProblemDetails();
+
+        services.AddMemoryCache();
 
         return services;
     }

@@ -23,8 +23,4 @@
 	<InternalsVisibleTo Include="Application.UnitTests" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Notifications\MarkAsRead\" />
-  </ItemGroup>
-
 </Project>

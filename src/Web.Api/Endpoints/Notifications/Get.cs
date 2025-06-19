@@ -13,9 +13,9 @@ public class Get : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
         app.MapGet("api/v1/notifications", async (
-            [FromQuery] short pageSize,
-            [FromQuery] short pageNumber,
-            ISender sender, CancellationToken cancellationToken) =>
+            ISender sender, CancellationToken cancellationToken,
+            [FromQuery] short? pageSize = 10,
+            [FromQuery] short? pageNumber = 1) =>
         {
             var query = new GetNotificationsQuery
             {
@@ -24,10 +24,10 @@ public class Get : IEndpoint
             };
 
             Result<PagedList<NotificationResponse>> result = await sender.Send(query, cancellationToken);
-
             return result.Match(Results.Ok, CustomResults.Problem);
         })
         .HasPermission(Permissions.UsersAccess)
+        .Produces<PagedList<NotificationResponse>>()
         .WithTags(Tags.Notifications);
     }
 }

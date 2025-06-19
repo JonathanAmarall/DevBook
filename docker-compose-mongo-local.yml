@@ -33,3 +33,17 @@ services:
        - MONGODB_INITIAL_PRIMARY_PORT_NUMBER=27017
        - MONGODB_INITIAL_PRIMARY_ROOT_PASSWORD=test
        - MONGODB_REPLICA_SET_KEY=replicasetkey123
+    
+   redis:
+        image: redis:7.2-alpine
+        container_name: redis_local
+        ports:
+          - "6379:6379"
+        volumes:
+          - redis_data:/data
+        command: ["redis-server", "--appendonly", "yes"]
+        restart: unless-stopped
+
+volumes:
+  redis_data:
+

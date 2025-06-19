@@ -2,8 +2,8 @@
 
 public enum NotificationStatus
 {
-    Pending,
-    Sent,
-    Read,
-    Failed
+    Pending = 0,
+    Sent = 1,
+    Read = 2,
+    Failed = 3
 }

@@ -15,14 +15,14 @@ public class NotificationScheduler : INotificationScheduler
         _logger = logger;
     }
 
-    public async Task ScheduleAsync(NotificationSchedule schedule, CancellationToken cancellationToken)
+    public async Task ScheduleAsync(NotificationSchedule schedule)
     {
         _logger.LogInformation("Start - Scheduling notification with ID {NotificationId} with frequency {Frequency}.",
             schedule.NotificationId, schedule.Frequency);
 
-        IScheduler scheduler = await _factory.GetScheduler(cancellationToken);
+        IScheduler scheduler = await _factory.GetScheduler();
         (IJobDetail job, ITrigger trigger) = QuartzScheduleFactory.CreateJobFromNotificationSchedule(schedule);
-        await scheduler.ScheduleJob(job, trigger, cancellationToken);
+        await scheduler.ScheduleJob(job, trigger);
 
         _logger.LogInformation("End - Scheduled notification with ID {NotificationId} with frequency {Frequency}.",
             schedule.NotificationId, schedule.Frequency);
