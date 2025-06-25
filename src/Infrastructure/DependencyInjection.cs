@@ -6,6 +6,7 @@ using Application.Abstractions.Authentication;
 using Application.Abstractions.Data;
 using Application.Abstractions.Messaging;
 using Application.Abstractions.Schedulers;
+using Application.Summaries.Services;
 using Domain.Repositories;
 using Domain.Services;
 using Infrastructure.Authentication;
@@ -49,10 +50,19 @@ public static partial class DependencyInjection
             .AddBackgroundJobs()
             .AddRedisCache(configuration);
 
+    public static void UseRepositoryInitializers(this IApplicationBuilder app)
+    {
+        foreach (IMappingConfigurationEntity initializer in app.ApplicationServices.GetServices<IMappingConfigurationEntity>())
+        {
+            initializer.InitializeAsync().Wait();
+        }
+    }
+
     private static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
-        services.AddTransient<IDomainEventsDispatcher, DomainEventsDispatcher>();
+        services.AddScoped<IDateTimeProvider, DateTimeProvider>();
+        services.AddScoped<IDomainEventsDispatcher, DomainEventsDispatcher>();
+        services.AddScoped<ISummaryEntryService, SummaryEntryService>();
 
         services.AddRefitClients(configuration);
 
@@ -134,9 +144,7 @@ public static partial class DependencyInjection
         return services;
     }
 
-    private static IServiceCollection AddAuthenticationInternal(
-        this IServiceCollection services,
-        IConfiguration configuration)
+    private static IServiceCollection AddAuthenticationInternal(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(o =>
@@ -183,10 +191,10 @@ public static partial class DependencyInjection
         return services;
     }
 
-    public static void AddRepositoryMappings(this IServiceCollection services, Assembly assemblyToScan)
+    private static void AddRepositoryMappings(this IServiceCollection services, Assembly assemblyToScan)
           => MongoDbMappings.RegisterMappings(assemblyToScan);
 
-    public static void AddRepositoryInitializers(this IServiceCollection services, Assembly assemblyToScan)
+    private static void AddRepositoryInitializers(this IServiceCollection services, Assembly assemblyToScan)
     {
         Type initializerType = typeof(IMappingConfigurationEntity);
         IEnumerable<Type> types = assemblyToScan.GetTypes().Where(t => !t.IsAbstract && !t.IsInterface && initializerType.IsAssignableFrom(t));
@@ -197,22 +205,10 @@ public static partial class DependencyInjection
         }
     }
 
-    public static void UseRepositoryInitializers(this IApplicationBuilder app)
-    {
-        foreach (IMappingConfigurationEntity initializer in app.ApplicationServices.GetServices<IMappingConfigurationEntity>())
-        {
-            initializer.InitializeAsync().Wait();
-        }
-    }
-
-
-    public static IServiceCollection AddRedisCache(this IServiceCollection services, IConfiguration configuration)
+    private static IServiceCollection AddRedisCache(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddStackExchangeRedisCache(options =>
-        {
-            options.Configuration = configuration.GetConnectionString("Redis");
-            options.InstanceName = "MyApp:"; // Prefixo opcional para as chaves
-        });
+            options.Configuration = configuration.GetConnectionString("Redis"));
 
         return services;
     }
