@@ -1,8 +1,8 @@
-# Documentação da API LogBook
+# Documentação da API DevBook
 
-## O que é a API LogBook?
+## O que é a API DevBook?
 
-A API LogBook é um sistema para registro, acompanhamento e notificação de eventos, tarefas, bugs e melhorias em projetos. Ela permite que usuários registrem entradas (entries), acompanhem seu status, recebam notificações e obtenham resumos periódicos das atividades. O sistema é voltado para equipes de desenvolvimento, gestores de projetos e qualquer contexto onde o acompanhamento de atividades e notificações seja relevante.
+A API DevBook é um sistema para registro, acompanhamento e notificação de eventos, tarefas, bugs e melhorias em projetos. Ela permite que usuários registrem entradas (entries), acompanhem seu status, recebam notificações e obtenham resumos periódicos das atividades. O sistema é voltado para equipes de desenvolvimento, gestores de projetos e qualquer contexto onde o acompanhamento de atividades e notificações seja relevante.
 
 ---
 
